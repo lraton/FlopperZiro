@@ -1,8 +1,9 @@
 # FlopperZiro
-An orribol copi of FilipperZero, with worst inglish
+An orribol copi of FilipperZero, uith worst inglish
 
 Component:
--STM32L4 (Microcontroller)
--TI CC1101 RF (Radio freq)
+-STM32-L412KB (Microcontroller)
+-RF TI CC1101 (Radio freq)
 -PN532 / NXP PN532 (RFID/NFC)
--ST7565 (Display)
+-IR LED & Reciver 
+-ST7565 (Display 126x64) https://github.com/adafruit/ST7565-LCD
