@@ -1,9 +1,12 @@
 # FlopperZiro
-An orribol copi of FilipperZero, uith worst inglish
+An orribol copi of FilipperZero, uit worst inglish
 
 Component:
--STM32-L412KB (Microcontroller)
--RF TI CC1101 (Radio freq)
--PN532 / NXP PN532 (RFID/NFC)
+-STM32-L432KC (Microcontroller)
+-RF 433Mhz (Radio freq)
+-PN532 (RFID/NFC)
 -IR LED & Reciver 
--ST7565 (Display 126x64) https://github.com/adafruit/ST7565-LCD
+-SSD1306(Display 128x64 OLED)
+-TF CardMemory Shield
+-TP4056
+-DC-DC 5V BOOST
