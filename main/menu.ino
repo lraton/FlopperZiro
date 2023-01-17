@@ -1,27 +1,7 @@
 //The menu function
 
 void displayMenu() {
-  switch(currentPage) {
-    case 0:
-      menuprincipale();
-      break;
-    case 1:
-      menuusb();
-      break;
-    case 2:
-      menurfid();
-      break;
-    case 3:
-      menuir();
-      break;
-    case 4:
-      menurf();
-      break;
-  }
-  
-  if(tag){
-    checkMenuButton();
-  }else{
+  if(tag==false){
     uint8_t success;
     uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
     uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
@@ -38,5 +18,23 @@ void displayMenu() {
         }
       }
     }   
+  }
+  checkMenuButton();
+  switch(currentPage) {
+    case 0:
+      menuprincipale(); //tamaguino
+      break;
+    case 1:
+      menuusb();
+      break;
+    case 2:
+      menurfid();
+      break;
+    case 3:
+      menuir();
+      break;
+    case 4:
+      menurf();
+      break;
   }
 }
