@@ -12,7 +12,7 @@ int buttonLeft = 4;
 int buttonSelect = 6; 
 int currentPage = 0;
 int scelta=0;
-const int numPages = 3; 
+const int numPages = 5; 
 
 int buf[]={115,232,15,186};
 bool tag=false;
@@ -49,10 +49,6 @@ void setup() {
 
 
 void loop() {
-  Serial.print("Current page: ");
-  Serial.println(currentPage);
-  
-  //mostra in base alle scelte
   switch(scelta){
     case 0:
       displayMenu();
@@ -65,9 +61,10 @@ void loop() {
       graficarfid();
       rfid();
       break;
+    default:
+      currentPage=0;
+      scelta=0;
+      break;
   }
-  
-
-
-  delay(100);
+  delay(200);
 }

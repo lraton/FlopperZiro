@@ -1,3 +1,5 @@
+//The menu function
+
 void displayMenu() {
   switch(currentPage) {
     case 0:
@@ -8,6 +10,12 @@ void displayMenu() {
       break;
     case 2:
       menurfid();
+      break;
+    case 3:
+      menuir();
+      break;
+    case 4:
+      menurf();
       break;
   }
   
