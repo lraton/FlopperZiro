@@ -19,23 +19,17 @@ void handleUpButton() {
   if(currentPage > 1) {
     currentPage--;
   }
-  Serial.println("next");
 }
 
 void handleDownButton() {
   if(currentPage < numPages-1) {
     currentPage++;
   }
-  Serial.println("Prev");
 }
 
 void handleLeftButton() {
-  if (scelta==0){
-    currentPage=0;
-  }else{
-      currentPage=scelta;
-      scelta=0;
-  }
+  currentPage=scelta;
+  scelta=0;
 }
 
 void handleSelectButton() {

@@ -155,5 +155,4 @@ void loop() {
       scelta=0;
       break;
   }
-  delay(150);
 }

@@ -2,4 +2,5 @@
 
 void badusb(){
   checkMenuButton();
+  delay(150);
 }

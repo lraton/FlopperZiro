@@ -25,16 +25,17 @@ void displayMenu() {
       menuprincipale(); //tamaguino
       break;
     case 1:
-      menuusb();
+      menuusb();//immagine usb
       break;
     case 2:
-      menurfid();
+      menurfid();//immagine rfid
       break;
     case 3:
-      menuir();
+      menuir();//immagine ir
       break;
     case 4:
-      menurf();
+      menurf();//immagine rf
       break;
   }
+  delay(150);
 }

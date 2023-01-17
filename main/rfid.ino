@@ -2,4 +2,5 @@
 
 void rfid(){
   checkMenuButton();
+  delay(150);
 }
