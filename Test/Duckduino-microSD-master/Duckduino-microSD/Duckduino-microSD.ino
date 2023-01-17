@@ -9,7 +9,8 @@ String DEFAULT_FILE_NAME = "script.txt";
 
 void setup() {
 
-  if (!SD.begin(4)) {
+  if (!SD.begin(A5)) {
+    Serial.println('Inserisci sd");
     return;
   }
   
