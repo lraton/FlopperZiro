@@ -13,6 +13,7 @@ void checkMenuButton(){
   if(digitalRead(buttonSelect) == LOW) {
     handleSelectButton();
   }
+  delay(150);
 }
 
 void handleUpButton() {

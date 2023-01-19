@@ -37,5 +37,4 @@ void displayMenu() {
       menurf();//immagine rf
       break;
   }
-  delay(150);
 }

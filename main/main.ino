@@ -3,22 +3,34 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_PN532.h>
 
-#define IRQ   (8)
-#define RESET (9)
+//pin rfid
+#define IRQ   (1)
+#define RESET (0)
 
-int buttonUp= 2;   
-int buttonDown = 3;
-int buttonLeft = 4;   
-int buttonSelect = 6; 
+//ir receiver
+#define IR_RECEIVE_PIN 6
+#define IR_SEND_PIN 9
+#include <IRremote.h>
+
+//button
+#define buttonUp (A4)   
+#define buttonDown  (A0)
+#define buttonLeft  (A3)   
+#define buttonSelect  (A2)
+
 int currentPage = 0;
 int scelta=0;
 const int numPages = 5; 
 
+//ir
+int recvPin = 6;
+IRrecv irrecv(recvPin);
+
 //tamaguino
 const int sound = 0;
-const int button1Pin = 4;
-const int button2Pin = 3; 
-const int button3Pin = 6; 
+#define button1Pin  (A3)
+#define button2Pin  (A0) 
+#define button3Pin  (A2) 
 int button1State = 0;
 int button2State = 0;
 int button3State = 0;
@@ -113,8 +125,6 @@ void setup() {
   pinMode(button3Pin, INPUT_PULLUP);
   pinMode(sound, OUTPUT);
 
-  randomSeed(analogRead(0));
-
   //setup display 
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.clearDisplay();
@@ -122,6 +132,10 @@ void setup() {
   display.clearDisplay();
   display.drawBitmap(0, 0, flopperblocked, 128, 64, WHITE);
   display.display(); 
+
+  //ir receiver sender
+  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
+  IrSender.begin(IR_SEND_PIN, ENABLE_LED_FEEDBACK);
 
   //Setup rfid/nfc
   nfc.begin();
@@ -149,6 +163,10 @@ void loop() {
     case 2:
       graficarfid();
       rfid();
+      break;
+    case 3:
+      graficarfid();
+      ir();
       break;
     default:
       currentPage=0;
