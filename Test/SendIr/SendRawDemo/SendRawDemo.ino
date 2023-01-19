@@ -41,7 +41,7 @@
 //#define USE_NO_SEND_PWM           // Use no carrier PWM, just simulate an active low receiver signal. Overrides SEND_PWM_BY_TIMER definition
 //#define NO_LED_FEEDBACK_CODE      // Saves 566 bytes program memory
 //#define USE_OPEN_DRAIN_OUTPUT_FOR_SEND_PIN // Use or simulate open drain output mode at send pin. Attention, active state of open drain is LOW, so connect the send LED between positive supply and send pin!
-#define IR_SEND_PIN 9
+#define IR_SEND_PIN 3
 #include <IRremote.hpp>
 
 void setup() {
@@ -80,5 +80,5 @@ void loop() {
     const uint16_t rawData[] = {4350,4550, 550,1650, 450,1800, 500,1700, 500,600, 550,550, 550,550, 550,600, 500,600, 500,1650, 550,1700, 500,1700, 550,550, 550,600, 500,600, 500,600, 500,600, 500,600, 500,1700, 550,550, 550,600, 500,600, 500,600, 500,600, 500,600, 500,1700, 550,550, 550,1700, 500,1650, 550,1700, 500,1700, 550,1650, 550,1700, 500};
     IrSender.sendRaw(rawData, 67, 38); // Note the approach used to automatically calculate the size of the array.
 
-    delay(1000); // delay must be greater than 5 ms (RECORD_GAP_MICROS), otherwise the receiver sees it as one long signal
+    delay(5000); // delay must be greater than 5 ms (RECORD_GAP_MICROS), otherwise the receiver sees it as one long signal
 }
