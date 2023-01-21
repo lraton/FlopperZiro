@@ -396,6 +396,7 @@ const unsigned char immaginerf [] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
 
+//funnzioni per il menu' principale
 void flopperblockedimage(){
   display.clearDisplay();
   display.drawBitmap(0, 0, flopperblocked, 128, 64, WHITE);
@@ -411,32 +412,34 @@ void menuprincipale(){
 void menuusb(){
   display.clearDisplay();
   display.drawBitmap(0, 0, immagineusb, 128, 64, WHITE);
-  display.display();  
+  battery();
 }
 void menurfid(){
   display.clearDisplay();
   display.drawBitmap(0, 0, immaginerfid, 128, 64, WHITE);
-  display.display();  
+  battery(); 
 }
+
 void menuir(){
   display.clearDisplay();
   display.drawBitmap(0, 0, immagineir, 128, 64, WHITE);
-  display.display();  
+  battery();  
 }
 void menurf(){
   display.clearDisplay();
   display.drawBitmap(0, 0, immaginerf, 128, 64, WHITE);
-  display.display();  
+  battery();  
 }
 
 
+//menu' singoli
 void graficausb(){
   display.clearDisplay();
   display.setCursor(0, 17);
   display.println("This is");
   display.println("a usb");
   display.println("Screen");
-  display.display();
+  battery();
 }
 
 void graficarfid(){
@@ -445,5 +448,5 @@ void graficarfid(){
   display.println("This is");
   display.println("a rfid");
   display.println("Screen");
-  display.display();
+  battery();
 }

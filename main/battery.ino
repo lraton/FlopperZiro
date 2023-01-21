@@ -31,7 +31,6 @@ void battery(){
   display.print(bat_percentage);
   display.println("%");
   display.display();
-  delay(1000);
 }
 
 float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)

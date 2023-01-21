@@ -6,23 +6,26 @@ File file;
 
 void setup() {
   Serial.begin(9600);
-  if(!SD.begin(SD_PIN)){
+
+
+}
+
+void loop() {
+    if(SD.begin(A5)){
+     Serial.println("SD");
+  }else{
     Serial.println("errore");
     return;
   }
-  Serial.println("SD");
-
-  if(SD.exists("prova.txt")){
-    SD.remove("prova.txt");
-  }
-  
+   if(SD.exists("prova.txt")){
+    Serial.println("gia esistente");
+  }else{   
    file = SD.open("prova.txt", FILE_WRITE);
    file.write("hello");
    file.close();
    file = SD.open("prova.txt");
    if (file) {
       Serial.println("prova.txt:");
-  
       // read from the file until there's nothing else in it:
       while (file.available()) {
         Serial.write(file.read());
@@ -33,9 +36,6 @@ void setup() {
       // if the file didn't open, print an error:
       Serial.println("error opening test.txt");
    }
-
-}
-
-void loop() {
-  
+  }
+  delay(500);
 }

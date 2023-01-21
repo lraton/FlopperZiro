@@ -1,4 +1,5 @@
 #include <Wire.h>
+#include <RCSwitch.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_PN532.h>
@@ -37,16 +38,21 @@ int button3State = 0;
 #define ACTIVATED LOW
 
 //battery
-int analogInPin  = A7;    // Analog input pin
+#define analogInPin  A4    // Analog input pin
 int sensorValue;          // Analog Output of Sensor
-float calibration = 1.29; 
+float calibration = 0.21; 
 int bat_percentage;
 
 //carta per sbloccare 
 int buf[]={115,232,15,186};
 bool tag=false;
 
-//rfid/display
+//Rf definition
+#define rfreceive 3
+#define rftransmit A6
+RCSwitch mySwitch = RCSwitch();
+
+//rfid display
 Adafruit_PN532 nfc(IRQ, RESET);
 Adafruit_SSD1306 display(128, 64);
 
@@ -71,6 +77,10 @@ void setup() {
   display.setTextColor(WHITE);
   flopperblockedimage(); 
 
+  //setup rf
+  mySwitch.enableReceive(rfreceive);
+  mySwitch.enableTransmit(rftransmit);
+  
   //ir receiver sender
   IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
   IrSender.begin(IR_SEND_PIN, ENABLE_LED_FEEDBACK);
@@ -83,11 +93,7 @@ void setup() {
     while (1);
   }
   nfc.SAMConfig();
-
- 
 }
-
-
 
 void loop() {
   switch(scelta){

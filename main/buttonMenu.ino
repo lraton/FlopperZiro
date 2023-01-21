@@ -1,7 +1,7 @@
 //all button function when im in the menu
 
 void checkMenuButton(){
-  if(digitalRead(buttonUp) == LOW) {
+  if(analogRead(buttonUp) == 0) {
     handleUpButton();
   }
   if(digitalRead(buttonDown) == LOW) {
