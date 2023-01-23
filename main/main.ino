@@ -23,10 +23,6 @@ int currentPage = 0;
 int scelta=0;
 const int numPages = 5; 
 
-//ir
-int recvPin = 6;
-IRrecv irrecv(recvPin);
-
 //tamaguino
 const int sound = 0;
 #define button1Pin  (A3)
@@ -40,7 +36,7 @@ int button3State = 0;
 //battery
 #define analogInPin  A4    // Analog input pin
 int sensorValue;          // Analog Output of Sensor
-float calibration = 0.21; 
+float calibration = 2.33; 
 int bat_percentage;
 
 //carta per sbloccare 

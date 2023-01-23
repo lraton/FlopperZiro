@@ -1,10 +1,10 @@
 int analogInPin  = A4;    // Analog input pin
 int sensorValue;          // Analog Output of Sensor
-float calibration = 0.33; // Check Battery voltage using multimeter & add/subtract the value
+float calibration = 2.33; // Check Battery voltage using multimeter & add/subtract the value
 int bat_percentage;
 
 void setup() {
-  pinMode(A4, INPUT_PULLUP);
+  pinMode(analogInPin, INPUT_PULLUP);
   Serial.begin(9600);
 }
 
@@ -12,7 +12,7 @@ void loop() {
   
   sensorValue = analogRead(analogInPin);
   Serial.println(sensorValue);
-  float voltage = (((sensorValue * 3.3) / 1024) * 2 + calibration); //multiply by two as voltage divider network is 100K & 100K Resistor
+  float voltage = (((sensorValue * 3.3) / 1024) * 2 - calibration); //multiply by two as voltage divider network is 100K & 100K Resistor
  
   bat_percentage = mapfloat(voltage, 2.8, 4.2, 0, 100); //2.8V as Battery Cut off Voltage & 4.2V as Maximum Voltage
  
@@ -32,6 +32,7 @@ void loop() {
   Serial.print("\t Battery Percentage = ");
   Serial.println(bat_percentage);
   checkMenuButton();
+  delay(150);
 }
 
 float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
