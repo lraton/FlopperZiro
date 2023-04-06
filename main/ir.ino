@@ -2,15 +2,12 @@ void  ir ( )
 {
   switch (sceltaSubMenu) {
     case 0:
-      Serial.println(sceltaSubMenu);
       graficair();
       break;
     case 1:
-      Serial.println(sceltaSubMenu);
       scanIr();
       break;
     case 2:
-      Serial.println(sceltaSubMenu);
       break;
   }
 }
@@ -19,6 +16,7 @@ void  ir ( )
 // Display IR code
 //
 void scanIr() {
+  graficairscan();
   decode_results  results;        // Somewhere to store the results
   if (IrReceiver.decode(&results)) {  // Grab an IR code
     dumpInfo(&results);           // Output the results

@@ -29,10 +29,24 @@ void handleSubMenuDownButton() {
 }
 
 void handleSubMenuLeftButton() {
+  sceltaSubMenu=0;
   currentPage = scelta;
   scelta = 0;
 }
 
 void handleSubMenuSelectButton() {
   sceltaSubMenu = currentPageSubMenu;
+}
+
+void checkModuleButton(){
+  if (digitalRead(buttonDown) == LOW) {
+    
+  }
+  if (digitalRead(buttonLeft) == LOW) {
+    sceltaSubMenu=0;
+  }
+  if (digitalRead(buttonSelect) == LOW) {
+    
+  }
+  delay(200);
 }
