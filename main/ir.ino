@@ -1,6 +1,34 @@
+void  ir ( )
+{
+  switch (sceltaSubMenu) {
+    case 0:
+      Serial.println(sceltaSubMenu);
+      graficair();
+      break;
+    case 1:
+      Serial.println(sceltaSubMenu);
+      scanIr();
+      break;
+    case 2:
+      Serial.println(sceltaSubMenu);
+      break;
+  }
+}
+
 //+=============================================================================
 // Display IR code
 //
+void scanIr() {
+  decode_results  results;        // Somewhere to store the results
+  if (IrReceiver.decode(&results)) {  // Grab an IR code
+    dumpInfo(&results);           // Output the results
+    //dumpRaw(&results);            // Output the results in RAW format
+    dumpCode(&results);           // Output the results as source code
+    Serial.println("");           // Blank line between entries
+    IrReceiver.resume();              // Prepare for the next value
+  }
+  checkSubMenuButton();
+}
 void  ircode (decode_results *results)
 {
   // Panasonic has an Address
@@ -68,7 +96,7 @@ void  dumpRaw (decode_results *results)
 {
   // Print Raw data
   Serial.print("Timing[");
-  Serial.print(results->rawlen-1, DEC);
+  Serial.print(results->rawlen - 1, DEC);
   Serial.println("]: ");
 
   for (int i = 1;  i < results->rawlen;  i++) {
@@ -84,7 +112,7 @@ void  dumpRaw (decode_results *results)
       if (x < 1000)  Serial.print(" ") ;
       if (x < 100)   Serial.print(" ") ;
       Serial.print(x, DEC);
-      if (i < results->rawlen-1) Serial.print(", "); //',' not needed for last one
+      if (i < results->rawlen - 1) Serial.print(", "); //',' not needed for last one
     }
     if (!(i % 8))  Serial.println("");
   }
@@ -105,12 +133,12 @@ void  dumpCode (decode_results *results)
   // Dump data
   for (int i = 1;  i < results->rawlen;  i++) {
     Serial.print(results->rawbuf[i] * USECPERTICK, DEC);
-    if ( i < results->rawlen-1 ) Serial.print(","); // ',' not needed on last one
+    if ( i < results->rawlen - 1 ) Serial.print(","); // ',' not needed on last one
     if (!(i & 1))  Serial.print(" ");
   }
 
   // End declaration
-  Serial.print("};");  // 
+  Serial.print("};");  //
 
   // Comment
   Serial.print("  // ");
@@ -136,17 +164,4 @@ void  dumpCode (decode_results *results)
     Serial.print(results->value, HEX);
     Serial.println(";");
   }
-}
-void  ir ( )
-{
-  decode_results  results;        // Somewhere to store the results
-
-  if (IrReceiver.decode(&results)) {  // Grab an IR code
-    dumpInfo(&results);           // Output the results
-    //dumpRaw(&results);            // Output the results in RAW format
-    dumpCode(&results);           // Output the results as source code
-    Serial.println("");           // Blank line between entries
-    IrReceiver.resume();              // Prepare for the next value
-  }
-  checkMenuButton();
 }

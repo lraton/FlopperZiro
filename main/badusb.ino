@@ -1,6 +1,6 @@
 //the badusb function
 
-void badusb(){
+void badusb() {
+  graficausb();
   checkMenuButton();
-  delay(150);
 }

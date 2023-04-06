@@ -1,38 +1,38 @@
 //all button function when im in the menu
 
-void checkMenuButton(){
-  if(analogRead(buttonUp) == 0) {
+void checkMenuButton() {
+  if (analogRead(buttonUp) == 0) {
     handleUpButton();
   }
-  if(digitalRead(buttonDown) == LOW) {
+  if (digitalRead(buttonDown) == LOW) {
     handleDownButton();
-    }
-  if(digitalRead(buttonLeft) == LOW) {
+  }
+  if (digitalRead(buttonLeft) == LOW) {
     handleLeftButton();
   }
-  if(digitalRead(buttonSelect) == LOW) {
+  if (digitalRead(buttonSelect) == LOW) {
     handleSelectButton();
   }
   delay(150);
 }
 
 void handleUpButton() {
-  if(currentPage > 1) {
+  if (currentPage > 1) {
     currentPage--;
   }
 }
 
 void handleDownButton() {
-  if(currentPage < numPages-1) {
+  if (currentPage < numPages - 1) {
     currentPage++;
   }
 }
 
 void handleLeftButton() {
-  currentPage=scelta;
-  scelta=0;
+  currentPage = scelta;
+  scelta = 0;
 }
 
 void handleSelectButton() {
-  scelta=currentPage;
+  scelta = currentPage;
 }

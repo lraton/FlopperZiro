@@ -1,33 +1,40 @@
 #include <Wire.h>
+#include <stdint.h>
+#include <IRremote.h>
 #include <RCSwitch.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_PN532.h>
 
 //pin rfid
-#define IRQ   (1)
-#define RESET (0)
+#define IRQ   1
+#define RESET 0
 
 //ir receiver
 #define IR_RECEIVE_PIN 6
 #define IR_SEND_PIN 9
-#include <IRremote.h>
 
 //button
-#define buttonUp (A4)   
+#define buttonUp (A4)
 #define buttonDown  (A0)
-#define buttonLeft  (A3)   
+#define buttonLeft  (A3)
 #define buttonSelect  (A2)
 
+//menu iniziale
 int currentPage = 0;
-int scelta=0;
-const int numPages = 5; 
+int scelta = 0;
+const int numPages = 5;
+
+//sub menu
+int currentPageSubMenu = 0;
+int sceltaSubMenu = 0;
+int numPagesSubMenu = 3;
 
 //tamaguino
 const int sound = 0;
 #define button1Pin  (A3)
-#define button2Pin  (A0) 
-#define button3Pin  (A2) 
+#define button2Pin  (A0)
+#define button3Pin  (A2)
 int button1State = 0;
 int button2State = 0;
 int button3State = 0;
@@ -36,12 +43,12 @@ int button3State = 0;
 //battery
 #define analogInPin  A4    // Analog input pin
 int sensorValue;          // Analog Output of Sensor
-float calibration = 2.33; 
+float calibration = 2.33;
 int bat_percentage;
 
-//carta per sbloccare 
-int buf[]={115,232,15,186};
-bool tag=false;
+//carta per sbloccare
+int buf[] = {115, 232, 15, 186};
+bool tag = false;
 
 //Rf definition
 #define rfreceive 3
@@ -49,7 +56,7 @@ bool tag=false;
 RCSwitch mySwitch = RCSwitch();
 
 //rfid display
-Adafruit_PN532 nfc(IRQ, RESET);
+Adafruit_PN532 nfc(1, 0);
 Adafruit_SSD1306 display(128, 64);
 
 void setup() {
@@ -68,18 +75,18 @@ void setup() {
   pinMode(button3Pin, INPUT_PULLUP);
   pinMode(sound, OUTPUT);
 
-  //setup display 
+  //setup display
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.setTextColor(WHITE);
-  flopperblockedimage(); 
+  flopperblockedimage();
 
   //setup rf
   mySwitch.enableReceive(rfreceive);
   mySwitch.enableTransmit(rftransmit);
-  
+
   //ir receiver sender
-  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
-  IrSender.begin(IR_SEND_PIN, ENABLE_LED_FEEDBACK);
+  IrReceiver.begin(IR_RECEIVE_PIN);
+  IrSender.begin(IR_SEND_PIN);
 
   //Setup rfid/nfc
   nfc.begin();
@@ -92,25 +99,22 @@ void setup() {
 }
 
 void loop() {
-  switch(scelta){
+  switch (scelta) {
     case 0:
-      displayMenu();
+      displayMenu(); //Mostra  il menu
       break;
     case 1:
-      graficausb();
       badusb();
       break;
     case 2:
-      graficarfid();
       rfid();
       break;
     case 3:
-      graficarfid();
       ir();
       break;
     default:
-      currentPage=0;
-      scelta=0;
+      currentPage = 0;
+      scelta = 0;
       break;
   }
 }
