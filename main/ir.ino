@@ -16,16 +16,31 @@ void  ir ( )
 // Display IR code
 //
 void scanIr() {
-  graficairscan();
-  decode_results  results;        // Somewhere to store the results
-  if (IrReceiver.decode(&results)) {  // Grab an IR code
-    dumpInfo(&results);           // Output the results
-    //dumpRaw(&results);            // Output the results in RAW format
-    dumpCode(&results);           // Output the results as source code
-    Serial.println("");           // Blank line between entries
-    IrReceiver.resume();              // Prepare for the next value
+  if(scanning==1){
+    graficairscan();
+    decode_results  results;        // Somewhere to store the results
+    if (IrReceiver.decode(&results)) {  // Grab an IR code
+      dumpInfo(&results);           // Output the results
+      dumpCode(&results);           // Output the results as source code
+      Serial.println("");           // Blank line between entries
+      scanbase();
+      display.setCursor(20, 25);
+      display.println("Encoding: "+irproducer);
+      display.setCursor(20, 35);
+      display.println("Data: 0x"+data);
+      Serial.println(irproducer);
+      IrReceiver.resume();              // Prepare for the next value
+      scanning=0;
+    }
+  }else{
+    scanbase();
+    display.setCursor(20, 25);
+    display.println("Encoding: "+irproducer);
+    display.setCursor(20, 35);
+    display.println("Data: 0x"+data);
   }
-  checkSubMenuButton();
+  battery();
+  checkModuleButton();
 }
 void  ircode (decode_results *results)
 {
@@ -46,20 +61,62 @@ void  encoding (decode_results *results)
 {
   switch (results->decode_type) {
     default:
-    case UNKNOWN:      Serial.print("UNKNOWN");       break ;
-    case NEC:          Serial.print("NEC");           break ;
-    case SONY:         Serial.print("SONY");          break ;
-    case RC5:          Serial.print("RC5");           break ;
-    case RC6:          Serial.print("RC6");           break ;
-    case SHARP:        Serial.print("SHARP");         break ;
-    case JVC:          Serial.print("JVC");           break ;
-    case BOSEWAVE:   Serial.print("BOSEWAVE");    break ;
-    case SAMSUNG:      Serial.print("SAMSUNG");       break ;
-    case LG:           Serial.print("LG");            break ;
-    case WHYNTER:      Serial.print("WHYNTER");       break ;
-    case KASEIKYO: Serial.print("KASEIKYO");  break ;
-    case PANASONIC:    Serial.print("PANASONIC");     break ;
-    case DENON:        Serial.print("Denon");         break ;
+    case UNKNOWN:
+      irproducer="UNKNOWN";
+      Serial.print("UNKNOWN");
+      break ;
+    case NEC:
+      irproducer="NEC";
+      Serial.print("NEC");
+      break ;
+    case SONY:
+      irproducer="SONY";
+      Serial.print("SONY");
+      break ;
+    case RC5:
+      irproducer="RC5";
+      Serial.print("RC5");
+      break ;
+    case RC6:
+      irproducer="RC6";
+      Serial.print("RC6");
+      break ;
+    case SHARP:
+      irproducer="SHARP";
+      Serial.print("SHARP");
+      break ;
+    case JVC:
+      irproducer="JVC";
+      Serial.print("JVC");
+      break ;
+    case BOSEWAVE: 
+      irproducer="BOSEWAVE";
+      Serial.print("BOSEWAVE");
+      break ;
+    case SAMSUNG:
+      irproducer="SAMSUNG";
+      Serial.print("SAMSUNG");
+      break ;
+    case LG:
+      irproducer="LG";
+      Serial.print("LG");
+      break ;
+    case WHYNTER:
+      irproducer="WHYNTER";
+      Serial.print("WHYNTER");
+      break ;
+    case KASEIKYO:
+      irproducer="KASEIKYO";
+      Serial.print("KASEIKYO");
+      break ;
+    case PANASONIC:
+      irproducer="PANASONIC";
+      Serial.print("PANASONIC");
+      break ;
+    case DENON:
+      irproducer="DENON";
+      Serial.print("Denon");
+      break ;
   }
 }
 
@@ -90,36 +147,6 @@ void  dumpInfo (decode_results *results)
 //+=============================================================================
 // Dump out the decode_results structure.
 //
-void  dumpRaw (decode_results *results)
-{
-  // Print Raw data
-  Serial.print("Timing[");
-  Serial.print(results->rawlen - 1, DEC);
-  Serial.println("]: ");
-
-  for (int i = 1;  i < results->rawlen;  i++) {
-    unsigned long  x = results->rawbuf[i] * USECPERTICK;
-    if (!(i & 1)) {  // even
-      Serial.print("-");
-      if (x < 1000)  Serial.print(" ") ;
-      if (x < 100)   Serial.print(" ") ;
-      Serial.print(x, DEC);
-    } else {  // odd
-      Serial.print("     ");
-      Serial.print("+");
-      if (x < 1000)  Serial.print(" ") ;
-      if (x < 100)   Serial.print(" ") ;
-      Serial.print(x, DEC);
-      if (i < results->rawlen - 1) Serial.print(", "); //',' not needed for last one
-    }
-    if (!(i % 8))  Serial.println("");
-  }
-  Serial.println("");                    // Newline
-}
-
-//+=============================================================================
-// Dump out the decode_results structure.
-//
 void  dumpCode (decode_results *results)
 {
   // Start declaration
@@ -130,6 +157,7 @@ void  dumpCode (decode_results *results)
 
   // Dump data
   for (int i = 1;  i < results->rawlen;  i++) {
+    rawData[i]=results->rawbuf[i] * USECPERTICK;
     Serial.print(results->rawbuf[i] * USECPERTICK, DEC);
     if ( i < results->rawlen - 1 ) Serial.print(","); // ',' not needed on last one
     if (!(i & 1))  Serial.print(" ");
@@ -153,13 +181,24 @@ void  dumpCode (decode_results *results)
     // Some protocols have an address
     if (results->decode_type == PANASONIC) {
       Serial.print("unsigned int  addr = 0x");
+      data=String(results->address,HEX);
       Serial.print(results->address, HEX);
       Serial.println(";");
     }
 
     // All protocols have data
     Serial.print("unsigned int  data = 0x");
+    data=String(results->value,HEX);
     Serial.print(results->value, HEX);
     Serial.println(";");
   }
+}
+
+void emulate() {
+  scanbase();
+  display.setCursor(33, 30);
+  display.println("Sending...");
+  battery();
+  IrSender.sendRaw(rawData, 67, freq_ir);
+  delay(2000);
 }

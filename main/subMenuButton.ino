@@ -29,7 +29,7 @@ void handleSubMenuDownButton() {
 }
 
 void handleSubMenuLeftButton() {
-  sceltaSubMenu=0;
+  sceltaSubMenu = 0;
   currentPage = scelta;
   scelta = 0;
 }
@@ -38,15 +38,23 @@ void handleSubMenuSelectButton() {
   sceltaSubMenu = currentPageSubMenu;
 }
 
-void checkModuleButton(){
+void checkModuleButton() {
+  if (analogRead(buttonUp) == 0) {
+    scanning = 1;
+  }
   if (digitalRead(buttonDown) == LOW) {
-    
+
   }
   if (digitalRead(buttonLeft) == LOW) {
-    sceltaSubMenu=0;
+    scanning = 1;
+    sceltaSubMenu = 0;
+  }
+  if (digitalRead(buttonRight) == LOW) {
+    scanning = 1;
+    emulate();
   }
   if (digitalRead(buttonSelect) == LOW) {
-    
+
   }
-  delay(200);
+  delay(150);
 }

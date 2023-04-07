@@ -13,12 +13,18 @@
 //ir receiver
 #define IR_RECEIVE_PIN 6
 #define IR_SEND_PIN 9
+int freq_ir = 38;
+String irproducer="";
+uint16_t   rawData[67];
+String  data="";
+int scanning=1;
 
 //button
 #define buttonUp (A4)
 #define buttonDown  (A0)
 #define buttonLeft  (A3)
 #define buttonSelect  (A2)
+#define buttonRight  (A1)
 
 //menu iniziale
 int currentPage = 0;
@@ -68,7 +74,8 @@ void setup() {
   pinMode(buttonDown, INPUT_PULLUP);
   pinMode(buttonLeft, INPUT_PULLUP);
   pinMode(buttonSelect, INPUT_PULLUP);
-
+  pinMode(buttonRight, INPUT_PULLUP);
+  
   //setup tamaguino
   pinMode(button1Pin, INPUT_PULLUP);
   pinMode(button2Pin, INPUT_PULLUP);
