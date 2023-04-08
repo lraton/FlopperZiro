@@ -157,7 +157,7 @@ void  dumpCode (decode_results *results)
 
   // Dump data
   for (int i = 1;  i < results->rawlen;  i++) {
-    rawData[i]=results->rawbuf[i] * USECPERTICK;
+    rawData[i-1]=results->rawbuf[i] * USECPERTICK;
     Serial.print(results->rawbuf[i] * USECPERTICK, DEC);
     if ( i < results->rawlen - 1 ) Serial.print(","); // ',' not needed on last one
     if (!(i & 1))  Serial.print(" ");

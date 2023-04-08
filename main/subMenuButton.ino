@@ -37,7 +37,7 @@ void handleSubMenuLeftButton() {
 void handleSubMenuSelectButton() {
   sceltaSubMenu = currentPageSubMenu;
 }
-
+////////////////////////////////////////////////
 void checkModuleButton() {
   if (analogRead(buttonUp) == 0) {
     scanning = 1;
@@ -50,7 +50,6 @@ void checkModuleButton() {
     sceltaSubMenu = 0;
   }
   if (digitalRead(buttonRight) == LOW) {
-    scanning = 1;
     emulate();
   }
   if (digitalRead(buttonSelect) == LOW) {

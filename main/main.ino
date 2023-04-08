@@ -15,7 +15,7 @@
 #define IR_SEND_PIN 9
 int freq_ir = 38;
 String irproducer="";
-uint16_t   rawData[67];
+uint16_t rawData[67];
 String  data="";
 int scanning=1;
 
