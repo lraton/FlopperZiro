@@ -218,22 +218,9 @@ void save() {
   } else {
     file = SD.open("ir/prova.txt", FILE_WRITE);
     for(int i=0;i<67;i++){
-      file.write(rawData[i]);
+      file.write("ciao");
     }
     file.close();
-    file = SD.open("ir/prova.txt");
-    if (file) {
-      Serial.println("prova.txt:");
-      // read from the file until there's nothing else in it:
-      while (file.available()) {
-        Serial.write(file.read());
-      }
-      // close the file:
-      file.close();
-    } else {
-      // if the file didn't open, print an error:
-      Serial.println("error opening prova.txt");
-    }
   }
   SD.end();
   delay(2000);
