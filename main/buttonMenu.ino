@@ -29,7 +29,7 @@ void handleDownButton() {
 }
 
 void handleLeftButton() {
-  sceltaSubMenu=0;
+  sceltaSubMenu = 0;
   currentPage = scelta;
   scelta = 0;
 }

@@ -43,7 +43,7 @@ void checkModuleButton() {
     scanning = 1;
   }
   if (digitalRead(buttonDown) == LOW) {
-
+    save();
   }
   if (digitalRead(buttonLeft) == LOW) {
     scanning = 1;

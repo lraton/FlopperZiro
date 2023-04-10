@@ -1,7 +1,9 @@
+#include <SPI.h>
+#include <SD.h>
 #include <Wire.h>
+#include <RCSwitch.h>
 #include <stdint.h>
 #include <IRremote.h>
-#include <RCSwitch.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_PN532.h>
@@ -14,12 +16,16 @@
 #define IR_RECEIVE_PIN 6
 #define IR_SEND_PIN 9
 int freq_ir = 38;
-String irproducer="";
+String irproducer = "";
 uint16_t rawData[67];
-String  data="";
-int scanning=1;
+String  data = "";
+int scanning = 1;
 
-//button
+//pin sd
+#define SD_PIN A5
+File file;
+
+//pin button
 #define buttonUp (A4)
 #define buttonDown  (A0)
 #define buttonLeft  (A3)
@@ -75,7 +81,7 @@ void setup() {
   pinMode(buttonLeft, INPUT_PULLUP);
   pinMode(buttonSelect, INPUT_PULLUP);
   pinMode(buttonRight, INPUT_PULLUP);
-  
+
   //setup tamaguino
   pinMode(button1Pin, INPUT_PULLUP);
   pinMode(button2Pin, INPUT_PULLUP);

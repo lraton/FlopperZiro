@@ -16,7 +16,7 @@ void  ir ( )
 // Display IR code
 //
 void scanIr() {
-  if(scanning==1){
+  if (scanning == 1) {
     graficairscan();
     decode_results  results;        // Somewhere to store the results
     if (IrReceiver.decode(&results)) {  // Grab an IR code
@@ -25,19 +25,19 @@ void scanIr() {
       Serial.println("");           // Blank line between entries
       scanbase();
       display.setCursor(20, 25);
-      display.println("Encoding: "+irproducer);
+      display.println("Encoding: " + irproducer);
       display.setCursor(20, 35);
-      display.println("Data: 0x"+data);
+      display.println("Data: 0x" + data);
       Serial.println(irproducer);
       IrReceiver.resume();              // Prepare for the next value
-      scanning=0;
+      scanning = 0;
     }
-  }else{
+  } else {
     scanbase();
     display.setCursor(20, 25);
-    display.println("Encoding: "+irproducer);
+    display.println("Encoding: " + irproducer);
     display.setCursor(20, 35);
-    display.println("Data: 0x"+data);
+    display.println("Data: 0x" + data);
   }
   battery();
   checkModuleButton();
@@ -62,59 +62,59 @@ void  encoding (decode_results *results)
   switch (results->decode_type) {
     default:
     case UNKNOWN:
-      irproducer="UNKNOWN";
+      irproducer = "UNKNOWN";
       Serial.print("UNKNOWN");
       break ;
     case NEC:
-      irproducer="NEC";
+      irproducer = "NEC";
       Serial.print("NEC");
       break ;
     case SONY:
-      irproducer="SONY";
+      irproducer = "SONY";
       Serial.print("SONY");
       break ;
     case RC5:
-      irproducer="RC5";
+      irproducer = "RC5";
       Serial.print("RC5");
       break ;
     case RC6:
-      irproducer="RC6";
+      irproducer = "RC6";
       Serial.print("RC6");
       break ;
     case SHARP:
-      irproducer="SHARP";
+      irproducer = "SHARP";
       Serial.print("SHARP");
       break ;
     case JVC:
-      irproducer="JVC";
+      irproducer = "JVC";
       Serial.print("JVC");
       break ;
-    case BOSEWAVE: 
-      irproducer="BOSEWAVE";
+    case BOSEWAVE:
+      irproducer = "BOSEWAVE";
       Serial.print("BOSEWAVE");
       break ;
     case SAMSUNG:
-      irproducer="SAMSUNG";
+      irproducer = "SAMSUNG";
       Serial.print("SAMSUNG");
       break ;
     case LG:
-      irproducer="LG";
+      irproducer = "LG";
       Serial.print("LG");
       break ;
     case WHYNTER:
-      irproducer="WHYNTER";
+      irproducer = "WHYNTER";
       Serial.print("WHYNTER");
       break ;
     case KASEIKYO:
-      irproducer="KASEIKYO";
+      irproducer = "KASEIKYO";
       Serial.print("KASEIKYO");
       break ;
     case PANASONIC:
-      irproducer="PANASONIC";
+      irproducer = "PANASONIC";
       Serial.print("PANASONIC");
       break ;
     case DENON:
-      irproducer="DENON";
+      irproducer = "DENON";
       Serial.print("Denon");
       break ;
   }
@@ -157,7 +157,7 @@ void  dumpCode (decode_results *results)
 
   // Dump data
   for (int i = 1;  i < results->rawlen;  i++) {
-    rawData[i-1]=results->rawbuf[i] * USECPERTICK;
+    rawData[i - 1] = results->rawbuf[i] * USECPERTICK;
     Serial.print(results->rawbuf[i] * USECPERTICK, DEC);
     if ( i < results->rawlen - 1 ) Serial.print(","); // ',' not needed on last one
     if (!(i & 1))  Serial.print(" ");
@@ -181,14 +181,14 @@ void  dumpCode (decode_results *results)
     // Some protocols have an address
     if (results->decode_type == PANASONIC) {
       Serial.print("unsigned int  addr = 0x");
-      data=String(results->address,HEX);
+      data = String(results->address, HEX);
       Serial.print(results->address, HEX);
       Serial.println(";");
     }
 
     // All protocols have data
     Serial.print("unsigned int  data = 0x");
-    data=String(results->value,HEX);
+    data = String(results->value, HEX);
     Serial.print(results->value, HEX);
     Serial.println(";");
   }
@@ -200,5 +200,41 @@ void emulate() {
   display.println("Sending...");
   battery();
   IrSender.sendRaw(rawData, 67, freq_ir);
+  delay(2000);
+}
+
+void save() {
+  scanbase();
+  battery();
+  if (SD.begin(SD_PIN)) {
+    display.setCursor(33, 30);
+    display.println("Saving...");
+  } else {
+    display.setCursor(33, 30);
+    display.println("SD Error...");
+  }
+  if (SD.exists("ir/prova.txt")) {
+    Serial.println("gia esistente");
+  } else {
+    file = SD.open("ir/prova.txt", FILE_WRITE);
+    for(int i=0;i<67;i++){
+      file.write(rawData[i]);
+    }
+    file.close();
+    file = SD.open("ir/prova.txt");
+    if (file) {
+      Serial.println("prova.txt:");
+      // read from the file until there's nothing else in it:
+      while (file.available()) {
+        Serial.write(file.read());
+      }
+      // close the file:
+      file.close();
+    } else {
+      // if the file didn't open, print an error:
+      Serial.println("error opening prova.txt");
+    }
+  }
+  SD.end();
   delay(2000);
 }
