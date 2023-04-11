@@ -79,19 +79,40 @@ void handleSubMenuSelectButton() {
   sceltaSubMenu = currentPageSubMenu;
 }
 ////////////////////////////////////////////////
-void checkModuleButton() {
+void checkModuleButton(int wichMenu) {
   if (analogRead(buttonUp) == 0) {
     scanning = 1;
   }
   if (digitalRead(buttonDown) == LOW) {
-    save();
+    switch (wichMenu) {
+      case 1:
+        break;
+      case 2:
+        break;
+      case 3:
+        save();
+        break;
+      case 4:
+        break;
+    }
   }
   if (digitalRead(buttonLeft) == LOW) {
     scanning = 1;
     sceltaSubMenu = 0;
   }
   if (digitalRead(buttonRight) == LOW) {
-    emulate();
+    switch (wichMenu) {
+      case 1:
+        break;
+      case 2:
+        break;
+      case 3:
+        emulate();
+        break;
+      case 4:
+        break;
+    }
+
   }
   if (digitalRead(buttonSelect) == LOW) {
 

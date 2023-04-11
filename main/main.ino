@@ -7,6 +7,8 @@
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_PN532.h>
+#include <string.h>
+#include "Keyboard.h"
 
 //pin rfid
 #define IRQ   1
@@ -23,6 +25,7 @@ int scanning = 1;
 
 //pin sd
 #define SD_PIN A5
+bool sdbegin=false;
 File file;
 
 //pin button
@@ -109,6 +112,13 @@ void setup() {
     while (1);
   }
   nfc.SAMConfig();
+
+  if (SD.begin(SD_PIN)) {
+    sdbegin=true;
+  } else {
+    sdbegin=false;
+  }
+  
 }
 
 void loop() {

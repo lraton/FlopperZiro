@@ -503,11 +503,6 @@ void menurf() {
 
 //menu' singoli
 void graficausb() {
-  display.clearDisplay();
-  display.setCursor(0, 17);
-  display.println("This is");
-  display.println("a usb");
-  display.println("Screen");
   battery();
 }
 

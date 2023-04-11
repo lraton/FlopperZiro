@@ -40,7 +40,7 @@ void scanIr() {
     display.println("Data: 0x" + data);
   }
   battery();
-  checkModuleButton();
+  checkModuleButton(3);
 }
 void  ircode (decode_results *results)
 {
@@ -206,7 +206,7 @@ void emulate() {
 void save() {
   scanbase();
   battery();
-  if (SD.begin(SD_PIN)) {
+  if (sdbegin) {
     display.setCursor(33, 30);
     display.println("Saving...");
   } else {
@@ -217,11 +217,10 @@ void save() {
     Serial.println("gia esistente");
   } else {
     file = SD.open("ir/prova.txt", FILE_WRITE);
-    for(int i=0;i<67;i++){
+    for (int i = 0; i < 67; i++) {
       file.write("ciao");
     }
     file.close();
   }
-  SD.end();
   delay(2000);
 }
