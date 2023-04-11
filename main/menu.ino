@@ -22,19 +22,19 @@ void displayMenu() {
     checkMenuButton();
     switch (currentPage) {
       case 0:
-        menuprincipale(); //tamaguino
+        menuprincipale();  //tamaguino
         break;
       case 1:
-        menuusb();//immagine usb
+        menuusb();  //immagine usb
         break;
       case 2:
-        menurfid();//immagine rfid
+        menurfid();  //immagine rfid
         break;
       case 3:
-        menuir();//immagine ir
+        menuir();  //immagine ir
         break;
       case 4:
-        menurf();//immagine rf
+        menurf();  //immagine rf
         break;
     }
   }

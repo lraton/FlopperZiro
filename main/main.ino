@@ -11,7 +11,7 @@
 #include "Keyboard.h"
 
 //pin rfid
-#define IRQ   1
+#define IRQ 1
 #define RESET 0
 
 //ir receiver
@@ -20,20 +20,20 @@
 int freq_ir = 38;
 String irproducer = "";
 uint16_t rawData[67];
-String  data = "";
+String data = "";
 int scanning = 1;
 
 //pin sd
 #define SD_PIN A5
-bool sdbegin=false;
+bool sdbegin = false;
 File file;
 
 //pin button
 #define buttonUp (A4)
-#define buttonDown  (A0)
-#define buttonLeft  (A3)
-#define buttonSelect  (A2)
-#define buttonRight  (A1)
+#define buttonDown (A0)
+#define buttonLeft (A3)
+#define buttonSelect (A2)
+#define buttonRight (A1)
 
 //menu iniziale
 int currentPage = 0;
@@ -47,22 +47,22 @@ int numPagesSubMenu = 3;
 
 //tamaguino
 const int sound = 0;
-#define button1Pin  (A3)
-#define button2Pin  (A0)
-#define button3Pin  (A2)
+#define button1Pin (A3)
+#define button2Pin (A0)
+#define button3Pin (A2)
 int button1State = 0;
 int button2State = 0;
 int button3State = 0;
 #define ACTIVATED LOW
 
 //battery
-#define analogInPin  A4    // Analog input pin
-int sensorValue;          // Analog Output of Sensor
+#define analogInPin A4  // Analog input pin
+int sensorValue;        // Analog Output of Sensor
 float calibration = 2.33;
 int bat_percentage;
 
 //carta per sbloccare
-int buf[] = {115, 232, 15, 186};
+int buf[] = { 115, 232, 15, 186 };
 bool tag = false;
 
 //Rf definition
@@ -72,6 +72,9 @@ RCSwitch mySwitch = RCSwitch();
 
 //rfid display
 Adafruit_PN532 nfc(1, 0);
+uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
+uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
+
 Adafruit_SSD1306 display(128, 64);
 
 void setup() {
@@ -107,24 +110,25 @@ void setup() {
   //Setup rfid/nfc
   nfc.begin();
   uint32_t versiondata = nfc.getFirmwareVersion();
-  if (! versiondata) {
+  if (!versiondata) {
     Serial.print("Didn't find PN53x board");
-    while (1);
+    while (1)
+      ;
   }
   nfc.SAMConfig();
-
+  /*
   if (SD.begin(SD_PIN)) {
     sdbegin=true;
   } else {
     sdbegin=false;
   }
-  
+  */
 }
 
 void loop() {
   switch (scelta) {
     case 0:
-      displayMenu(); //Mostra  il menu
+      displayMenu();  //Mostra  il menu
       break;
     case 1:
       badusb();
@@ -133,6 +137,9 @@ void loop() {
       rfid();
       break;
     case 3:
+      ir();
+      break;
+    case 4:
       ir();
       break;
     default:

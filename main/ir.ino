@@ -1,5 +1,4 @@
-void  ir ( )
-{
+void ir() {
   switch (sceltaSubMenu) {
     case 0:
       graficair();
@@ -10,6 +9,7 @@ void  ir ( )
     case 2:
       break;
   }
+  
 }
 
 //+=============================================================================
@@ -18,18 +18,18 @@ void  ir ( )
 void scanIr() {
   if (scanning == 1) {
     graficairscan();
-    decode_results  results;        // Somewhere to store the results
+    decode_results results;             // Somewhere to store the results
     if (IrReceiver.decode(&results)) {  // Grab an IR code
-      dumpInfo(&results);           // Output the results
-      dumpCode(&results);           // Output the results as source code
-      Serial.println("");           // Blank line between entries
+      dumpInfo(&results);               // Output the results
+      dumpCode(&results);               // Output the results as source code
+      Serial.println("");               // Blank line between entries
       scanbase();
       display.setCursor(20, 25);
       display.println("Encoding: " + irproducer);
       display.setCursor(20, 35);
       display.println("Data: 0x" + data);
       Serial.println(irproducer);
-      IrReceiver.resume();              // Prepare for the next value
+      IrReceiver.resume();  // Prepare for the next value
       scanning = 0;
     }
   } else {
@@ -42,8 +42,7 @@ void scanIr() {
   battery();
   checkModuleButton(3);
 }
-void  ircode (decode_results *results)
-{
+void ircode(decode_results *results) {
   // Panasonic has an Address
   if (results->decode_type == PANASONIC) {
     Serial.print(results->address, HEX);
@@ -57,74 +56,72 @@ void  ircode (decode_results *results)
 //+=============================================================================
 // Display encoding type
 //
-void  encoding (decode_results *results)
-{
+void encoding(decode_results *results) {
   switch (results->decode_type) {
     default:
     case UNKNOWN:
       irproducer = "UNKNOWN";
       Serial.print("UNKNOWN");
-      break ;
+      break;
     case NEC:
       irproducer = "NEC";
       Serial.print("NEC");
-      break ;
+      break;
     case SONY:
       irproducer = "SONY";
       Serial.print("SONY");
-      break ;
+      break;
     case RC5:
       irproducer = "RC5";
       Serial.print("RC5");
-      break ;
+      break;
     case RC6:
       irproducer = "RC6";
       Serial.print("RC6");
-      break ;
+      break;
     case SHARP:
       irproducer = "SHARP";
       Serial.print("SHARP");
-      break ;
+      break;
     case JVC:
       irproducer = "JVC";
       Serial.print("JVC");
-      break ;
+      break;
     case BOSEWAVE:
       irproducer = "BOSEWAVE";
       Serial.print("BOSEWAVE");
-      break ;
+      break;
     case SAMSUNG:
       irproducer = "SAMSUNG";
       Serial.print("SAMSUNG");
-      break ;
+      break;
     case LG:
       irproducer = "LG";
       Serial.print("LG");
-      break ;
+      break;
     case WHYNTER:
       irproducer = "WHYNTER";
       Serial.print("WHYNTER");
-      break ;
+      break;
     case KASEIKYO:
       irproducer = "KASEIKYO";
       Serial.print("KASEIKYO");
-      break ;
+      break;
     case PANASONIC:
       irproducer = "PANASONIC";
       Serial.print("PANASONIC");
-      break ;
+      break;
     case DENON:
       irproducer = "DENON";
       Serial.print("Denon");
-      break ;
+      break;
   }
 }
 
 //+=============================================================================
 // Dump out the decode_results structure.
 //
-void  dumpInfo (decode_results *results)
-{
+void dumpInfo(decode_results *results) {
   // Check if the buffer overflowed
   if (results->overflow) {
     Serial.println("IR code too long. Edit IRremoteInt.h and increase RAWLEN");
@@ -147,8 +144,7 @@ void  dumpInfo (decode_results *results)
 //+=============================================================================
 // Dump out the decode_results structure.
 //
-void  dumpCode (decode_results *results)
-{
+void dumpCode(decode_results *results) {
   // Start declaration
   Serial.print("unsigned int  ");          // variable type
   Serial.print("rawData[");                // array name
@@ -156,11 +152,11 @@ void  dumpCode (decode_results *results)
   Serial.print("] = {");                   // Start declaration
 
   // Dump data
-  for (int i = 1;  i < results->rawlen;  i++) {
+  for (int i = 1; i < results->rawlen; i++) {
     rawData[i - 1] = results->rawbuf[i] * USECPERTICK;
     Serial.print(results->rawbuf[i] * USECPERTICK, DEC);
-    if ( i < results->rawlen - 1 ) Serial.print(","); // ',' not needed on last one
-    if (!(i & 1))  Serial.print(" ");
+    if (i < results->rawlen - 1) Serial.print(",");  // ',' not needed on last one
+    if (!(i & 1)) Serial.print(" ");
   }
 
   // End declaration
@@ -194,7 +190,7 @@ void  dumpCode (decode_results *results)
   }
 }
 
-void emulate() {
+void emulateIr() {
   scanbase();
   display.setCursor(33, 30);
   display.println("Sending...");
@@ -203,7 +199,7 @@ void emulate() {
   delay(2000);
 }
 
-void save() {
+void saveIr() {
   scanbase();
   battery();
   if (sdbegin) {

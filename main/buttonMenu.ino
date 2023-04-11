@@ -82,40 +82,55 @@ void handleSubMenuSelectButton() {
 void checkModuleButton(int wichMenu) {
   if (analogRead(buttonUp) == 0) {
     scanning = 1;
+    Serial.println(scanning);
   }
   if (digitalRead(buttonDown) == LOW) {
     switch (wichMenu) {
       case 1:
         break;
       case 2:
+        saveRfid();
         break;
       case 3:
-        save();
+        saveIr();
         break;
       case 4:
         break;
     }
   }
   if (digitalRead(buttonLeft) == LOW) {
-    scanning = 1;
-    sceltaSubMenu = 0;
+    switch (wichMenu) {
+      case 1:
+        scelta = 0;
+        currentPage = 1;
+        break;
+      case 2:
+        scanning = 1;
+        sceltaSubMenu = 0;
+        break;
+      case 3:
+        scanning = 1;
+        sceltaSubMenu = 0;
+        break;
+      case 4:
+        break;
+    }
   }
   if (digitalRead(buttonRight) == LOW) {
     switch (wichMenu) {
       case 1:
         break;
       case 2:
+        emulateRfid();
         break;
       case 3:
-        emulate();
+        emulateIr();
         break;
       case 4:
         break;
     }
-
   }
   if (digitalRead(buttonSelect) == LOW) {
-
   }
   delay(150);
 }
