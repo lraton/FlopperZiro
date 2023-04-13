@@ -539,7 +539,7 @@ void scanbase() {
   display.setCursor(95, 52);
   display.println("emul.");
 }
-void graficairscan() {
+void graficascan() {
   scanbase();
   display.setCursor(33, 30);
   display.println("Scanning...");

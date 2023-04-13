@@ -16,10 +16,11 @@ void rfid() {
 //
 void scanRfid() {
   if (scanning == 1) {
-    graficairscan();
-    battery();
+    Serial.println("ciao");
+    graficascan();
+    //battery();
     uint8_t success;
-    success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
+    success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, 50);
     if (success) {
       scanbase();
       Serial.print("UID Value: ");
@@ -34,7 +35,7 @@ void scanRfid() {
         }
       }
       display.setCursor(20, 35);
-      display.print("Lenght: " + uidLength);
+      display.print("Lenght: " + String(uidLength) + " Bytes");
       scanning = 0;
     }
   } else {
@@ -48,8 +49,8 @@ void scanRfid() {
         display.println(uid[i]);
       }
     }
-    display.setCursor(20, 35);
-    display.print("Lenght: " + uidLength);
+    display.setCursor(15, 35);
+    display.print("Lenght: " + String(uidLength) + " Bytes");
   }
   battery();
   checkModuleButton(2);
@@ -58,29 +59,36 @@ void scanRfid() {
 void emulateRfid() {
   scanbase();
   display.setCursor(33, 30);
+  uint8_t apdubuffer[255] = {}, apdulen = 0;
+  nfc.AsTarget();
+  nfc.setDataTarget(uid, uidLength);        //Mimic a smart card response with a PPSE APDU
   display.println("Sending...");
   battery();
-  //IrSender.sendRaw(rawData, 67, freq_ir);
   delay(2000);
 }
 
 void saveRfid() {
   scanbase();
-  if (sdbegin) {
-    display.setCursor(33, 30);
-    display.println("Saving...");
-  } else {
-    display.setCursor(33, 30);
-    display.println("SD Error...");
-  }
-  if (SD.exists("ir/prova.txt")) {
-    Serial.println("gia esistente");
-  } else {
-    file = SD.open("ir/prova.txt", FILE_WRITE);
-    for (int i = 0; i < 67; i++) {
-      file.write("ciao");
+  if (scanning == 0) {
+    if (sdbegin) {
+      display.setCursor(33, 30);
+      display.println("Saving...");
+      if (SD.exists("ir/prova.txt")) {
+        Serial.println("gia esistente");
+      } else {
+        file = SD.open("ir/prova.txt", FILE_WRITE);
+        for (int i = 0; i < 67; i++) {
+          file.write("ciao");
+        }
+        file.close();
+      }
+    } else {
+      display.setCursor(33, 30);
+      display.println("SD Error...");
     }
-    file.close();
+  } else {
+    display.setCursor(30, 30);
+    display.println("Nothing to send");
   }
   battery();
   delay(2000);
