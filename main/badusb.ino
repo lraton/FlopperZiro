@@ -30,8 +30,8 @@ void badusb() {
     file.close();
   } else {
   }
-
   Keyboard.end();
+  battery();
   checkModuleButton(1);
 }
 

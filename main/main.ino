@@ -1,5 +1,6 @@
 #include <SPI.h>
-#include <SD.h>
+#include "SdFat.h"
+#include "sdios.h"
 #include <Wire.h>
 #include <RCSwitch.h>
 #include <stdint.h>
@@ -24,8 +25,10 @@ String data = "";
 int scanning = 1;
 
 //pin sd
+#define SPI_SPEED SD_SCK_MHZ(4)
 #define SD_PIN A5
 bool sdbegin = false;
+SdFat SD;
 File file;
 
 //pin button
@@ -111,16 +114,20 @@ void setup() {
   nfc.begin();
   uint32_t versiondata = nfc.getFirmwareVersion();
   if (!versiondata) {
-    Serial.print("Didn't find PN53x board");
-    while (1)
-      ;
+    Serial.println("RFID error");
+    display.setCursor(33, 30);
+    display.println("RFID error");
+    display.display();
+    //while (1);
   }
   nfc.SAMConfig();
   /*
-  if (SD.begin(SD_PIN)) {
+  if (SD.begin(SD_PIN, SPI_SPEED)) {
     sdbegin=true;
+    Serial.println("SD");
   } else {
     sdbegin=false;
+    Serial.println("NO SD");
   }
   */
 }

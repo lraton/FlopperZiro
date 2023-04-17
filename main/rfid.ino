@@ -16,7 +16,6 @@ void rfid() {
 //
 void scanRfid() {
   if (scanning == 1) {
-    Serial.println("ciao");
     graficascan();
     //battery();
     uint8_t success;
