@@ -32,7 +32,7 @@ Component:
 - [ ]    Resovle SD problem with SSD1306
     - [ ]    Do the sd menu'
     - [ ]    save/load from sd
-- [ ]    Finish the rf scanner and sender
+- [X]    Finish the rf scanner and sender
 - [X]   Menu'
 - [X]   BadUsb
 - [X]   Ir
