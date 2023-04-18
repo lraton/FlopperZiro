@@ -61,7 +61,7 @@ int button3State = 0;
 //battery
 #define analogInPin A4  // Analog input pin
 int sensorValue;        // Analog Output of Sensor
-float calibration = 2.33;
+float calibration = 2.25;
 int bat_percentage;
 
 //carta per sbloccare
@@ -72,6 +72,9 @@ bool tag = false;
 #define rfreceive 3
 #define rftransmit A6
 RCSwitch mySwitch = RCSwitch();
+int rfvalue;
+int rfbit;
+int rfprotocol;
 
 //rfid display
 Adafruit_PN532 nfc(1, 0);
@@ -111,6 +114,7 @@ void setup() {
   IrSender.begin(IR_SEND_PIN);
 
   //Setup rfid/nfc
+  /*
   nfc.begin();
   uint32_t versiondata = nfc.getFirmwareVersion();
   if (!versiondata) {
@@ -121,7 +125,7 @@ void setup() {
     //while (1);
   }
   nfc.SAMConfig();
-  /*
+  
   if (SD.begin(SD_PIN, SPI_SPEED)) {
     sdbegin=true;
     Serial.println("SD");
@@ -147,7 +151,7 @@ void loop() {
       ir();
       break;
     case 4:
-      ir();
+      rf();
       break;
     default:
       currentPage = 0;

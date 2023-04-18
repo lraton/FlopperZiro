@@ -95,6 +95,7 @@ void checkModuleButton(int wichMenu) {
         saveIr();
         break;
       case 4:
+        saveRf();
         break;
     }
   }
@@ -113,6 +114,8 @@ void checkModuleButton(int wichMenu) {
         sceltaSubMenu = 0;
         break;
       case 4:
+        scanning = 1;
+        sceltaSubMenu = 0;
         break;
     }
   }
@@ -127,6 +130,7 @@ void checkModuleButton(int wichMenu) {
         emulateIr();
         break;
       case 4:
+        emulateIr();
         break;
     }
   }
