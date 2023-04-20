@@ -11,10 +11,6 @@
 #include <string.h>
 #include "Keyboard.h"
 
-//pin rfid
-#define IRQ 1
-#define RESET 0
-
 //ir receiver
 #define IR_RECEIVE_PIN 6
 #define IR_SEND_PIN 9
@@ -76,11 +72,15 @@ int rfvalue;
 int rfbit;
 int rfprotocol;
 
-//rfid display
-Adafruit_PN532 nfc(1, 0);
+//pin rfid
+#define IRQ 1
+#define RESET 0
+//rfid
+Adafruit_PN532 nfc(IRQ, RESET, &Wire);
 uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
 uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
 
+//Display
 Adafruit_SSD1306 display(128, 64);
 
 void setup() {
@@ -114,7 +114,6 @@ void setup() {
   IrSender.begin(IR_SEND_PIN);
 
   //Setup rfid/nfc
-  /*
   nfc.begin();
   uint32_t versiondata = nfc.getFirmwareVersion();
   if (!versiondata) {
@@ -125,7 +124,7 @@ void setup() {
     //while (1);
   }
   nfc.SAMConfig();
-  
+  /*
   if (SD.begin(SD_PIN, SPI_SPEED)) {
     sdbegin=true;
     Serial.println("SD");

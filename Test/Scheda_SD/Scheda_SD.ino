@@ -6,151 +6,80 @@
 #include <IRremote.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_PN532.h>
+#include <PN532_I2C.h>
+#include "PN532.h"
 
 //pin rfid
-#define IRQ   1
+#define IRQ 1
 #define RESET 0
-
-//ir receiver
-#define IR_RECEIVE_PIN 6
-#define IR_SEND_PIN 9
-int freq_ir = 38;
-String irproducer = "";
-uint16_t rawData[67];
-String  data = "";
-int scanning = 1;
 
 //pin sd
 #define SD_PIN A5
 File file;
 
-//pin button
-#define buttonUp (A4)
-#define buttonDown  (A0)
-#define buttonLeft  (A3)
-#define buttonSelect  (A2)
-#define buttonRight  (A1)
-
-//menu iniziale
-int currentPage = 0;
-int scelta = 0;
-const int numPages = 5;
-
-//sub menu
-int currentPageSubMenu = 0;
-int sceltaSubMenu = 0;
-int numPagesSubMenu = 3;
-
-//tamaguino
-const int sound = 0;
-#define button1Pin  (A3)
-#define button2Pin  (A0)
-#define button3Pin  (A2)
-int button1State = 0;
-int button2State = 0;
-int button3State = 0;
-#define ACTIVATED LOW
-
-//battery
-#define analogInPin  A4    // Analog input pin
-int sensorValue;          // Analog Output of Sensor
-float calibration = 2.33;
-int bat_percentage;
-
-//carta per sbloccare
-int buf[] = {115, 232, 15, 186};
-bool tag = false;
-
-//Rf definition
-#define rfreceive 3
-#define rftransmit A6
-RCSwitch mySwitch = RCSwitch();
-
+uint32_t versiondata;
 //rfid display
-Adafruit_PN532 nfc(1, 0);
-Adafruit_SSD1306 display(128, 64);
+PN532_I2C pn(Wire);
+PN532 nfc(pn);
+
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+
+// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+// The pins for I2C are defined by the Wire-library. 
+// On an arduino UNO:       A4(SDA), A5(SCL)
+// On an arduino MEGA 2560: 20(SDA), 21(SCL)
+// On an arduino LEONARDO:   2(SDA),  3(SCL), ...
+#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 void setup() {
   Serial.begin(9600);
-  Wire.begin();
-
-  //setup button
-  pinMode(buttonUp, INPUT_PULLUP);
-  pinMode(buttonDown, INPUT_PULLUP);
-  pinMode(buttonLeft, INPUT_PULLUP);
-  pinMode(buttonSelect, INPUT_PULLUP);
-  pinMode(buttonRight, INPUT_PULLUP);
-
-  //setup tamaguino
-  pinMode(button1Pin, INPUT_PULLUP);
-  pinMode(button2Pin, INPUT_PULLUP);
-  pinMode(button3Pin, INPUT_PULLUP);
-  pinMode(sound, OUTPUT);
-
-  //setup display
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  display.setTextColor(WHITE);
-
-  //setup rf
-  mySwitch.enableReceive(rfreceive);
-  mySwitch.enableTransmit(rftransmit);
-
-  //ir receiver sender
-  IrReceiver.begin(IR_RECEIVE_PIN);
-  IrSender.begin(IR_SEND_PIN);
-
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed, loop forever
+  }
+  display.display();
+  display.clearDisplay();
+  display.setCursor(0,0);
+  display.println("porcodddd");
+  display.display();
+  //Setup rfid/nfc
+  nfc.begin();
+   versiondata = nfc.getFirmwareVersion();
+  if (!versiondata) {
+    Serial.print("Didn't find PN53x board");
+    while (1)
+      ;
+  }
+  nfc.SAMConfig();
+/*
   if (SD.begin(SD_PIN)) {
     Serial.println("SD");
   } else {
     Serial.println("errore");
     return;
   }
-  
-  //Setup rfid/nfc
-  nfc.begin();
-  uint32_t versiondata = nfc.getFirmwareVersion();
-  if (! versiondata) {
-    Serial.print("Didn't find PN53x board");
-    while (1);
-  }
-  nfc.SAMConfig();
+*/
 }
 
 void loop() {
-for(int i=0;i<10;i++){
-    Serial.println("ciao");
-    delay(150);
+    if (!versiondata) {
+    Serial.print("Didn't find PN53x board");
+    //while (1);
+  }else{
+    Serial.print("PN53x found");
   }
-  if (SD.begin(SD_PIN)) {
-    Serial.println("SD");
-  } else {
-    Serial.println("errore");
-    return;
-  }
-  if (SD.exists("prova.txt")) {
-    Serial.println("gia esistente");
-  } else {
-    file = SD.open("prova.txt", FILE_WRITE);
-    file.write("hello");
-    file.close();
-    file = SD.open("prova.txt");
-    if (file) {
-      Serial.println("prova.txt:");
-      // read from the file until there's nothing else in it:
-      while (file.available()) {
-        Serial.write(file.read());
-      }
-      // close the file:
-      file.close();
-    } else {
-      // if the file didn't open, print an error:
-      Serial.println("error opening test.txt");
+  uint8_t success;
+  uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
+  uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
+  success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
+  if (success) {
+    Serial.print("UID Value: ");
+    nfc.PrintHex(uid, uidLength);
+    for (int i = 0; i < uidLength; i++) {
+      Serial.println(uid[i]);
     }
-  }
-  SD.end();
-  for(int i=0;i<10;i++){
-    Serial.println("ciao");
-    delay(150);
   }
 }
