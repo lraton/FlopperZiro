@@ -1,5 +1,4 @@
 //all button function when im in the menu
-
 void checkMenuButton() {
   if (analogRead(buttonUp) == 0) {
     handleUpButton();
@@ -82,7 +81,6 @@ void handleSubMenuSelectButton() {
 void checkModuleButton(int wichMenu) {
   if (analogRead(buttonUp) == 0) {
     scanning = 1;
-    Serial.println(scanning);
   }
   if (digitalRead(buttonDown) == LOW) {
     switch (wichMenu) {
@@ -122,6 +120,7 @@ void checkModuleButton(int wichMenu) {
   if (digitalRead(buttonRight) == LOW) {
     switch (wichMenu) {
       case 1:
+        emulateUsb();
         break;
       case 2:
         emulateRfid();
@@ -130,7 +129,7 @@ void checkModuleButton(int wichMenu) {
         emulateIr();
         break;
       case 4:
-        emulateIr();
+        emulateRf();
         break;
     }
   }

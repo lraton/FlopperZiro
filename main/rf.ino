@@ -43,7 +43,7 @@ void scanRf() {
   checkModuleButton(4);
 }
 
-void emulateRF() {
+void emulateRf() {
   scanbase();
   display.setCursor(33, 30);
   display.println("Sending...");

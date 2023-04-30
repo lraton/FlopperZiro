@@ -22,7 +22,7 @@ int scanning = 1;
 
 //pin sd
 #define SPI_SPEED SD_SCK_MHZ(4)
-#define SD_PIN A5
+#define SD_PIN A0
 bool sdbegin = false;
 SdFat SD;
 File file;
@@ -47,7 +47,7 @@ int numPagesSubMenu = 3;
 //tamaguino
 const int sound = 0;
 #define button1Pin (A3)
-#define button2Pin (A0)
+#define button2Pin (A5)
 #define button3Pin (A2)
 int button1State = 0;
 int button2State = 0;
@@ -124,7 +124,7 @@ void setup() {
     //while (1);
   }
   nfc.SAMConfig();
-  /*
+  
   if (SD.begin(SD_PIN, SPI_SPEED)) {
     sdbegin=true;
     Serial.println("SD");
@@ -132,7 +132,7 @@ void setup() {
     sdbegin=false;
     Serial.println("NO SD");
   }
-  */
+  
 }
 
 void loop() {

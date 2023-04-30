@@ -1,7 +1,30 @@
 //the badusb function
-
 void badusb() {
+  switch (sceltaSubMenu) {
+    case 0:
+      graficair();
+      break;
+    case 1:
+      selectedbadusb();
+      break;
+    case 2:
+      break;
+  }
+}
+void selectedbadusb() {
   graficausb();
+  if (sdbegin) {
+    display.setCursor(33, 30);
+    display.println("script.txt");  //da cambiare in base a quale scegli
+  } else {
+    display.setCursor(33, 30);
+    display.println("SD Error...");
+  }
+  battery();
+  checkModuleButton(1);
+}
+
+void emulateUsb() {
   String DEFAULT_FILE_NAME = "script.txt";
   if (sdbegin) {
     display.setCursor(33, 30);
@@ -10,7 +33,7 @@ void badusb() {
     display.setCursor(33, 30);
     display.println("SD Error...");
   }
-
+  battery();
   file = SD.open(DEFAULT_FILE_NAME);
   if (file) {
     Keyboard.begin();
@@ -28,11 +51,8 @@ void badusb() {
     Line(line);
 
     file.close();
-  } else {
   }
   Keyboard.end();
-  battery();
-  checkModuleButton(1);
 }
 
 void Line(String l) {
