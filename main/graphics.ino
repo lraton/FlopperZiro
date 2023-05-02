@@ -506,7 +506,7 @@ void graficausb() {
   scanbase();
 }
 
-void graficair() {
+void subMenuDisplay() {
   display.clearDisplay();
   display.setCursor(0, 17);
   switch (currentPageSubMenu) {
@@ -544,3 +544,4 @@ void graficascan() {
   display.setCursor(33, 30);
   display.println("Scanning...");
 }
+

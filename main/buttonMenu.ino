@@ -37,7 +37,7 @@ void handleSelectButton() {
   scelta = currentPage;
 }
 
-/////////////////////////////////////
+//////////////////button for the second menu///////////////////
 void checkSubMenuButton() {
   if (analogRead(buttonUp) == 0) {
     handleSubMenuUpButton();
@@ -76,8 +76,27 @@ void handleSubMenuLeftButton() {
 
 void handleSubMenuSelectButton() {
   sceltaSubMenu = currentPageSubMenu;
+  if (sceltaSubMenu == 2) {
+    File dir;
+    switch (type) {
+      case 1:
+        dir = SD.open("/badusb/");
+        break;
+      case 2:
+        dir = SD.open("/rfid/");
+        break;
+      case 3:
+        dir = SD.open("/ir/");
+        break;
+      case 4:
+        dir = SD.open("/rf/");
+        break;
+    }
+    fileCount = countfile(dir);
+    sdDisplay(dir,type);
+  }
 }
-////////////////////////////////////////////////
+////////////////////button on the last menu////////////////////////////
 void checkModuleButton(int wichMenu) {
   if (analogRead(buttonUp) == 0) {
     scanning = 1;
@@ -98,6 +117,7 @@ void checkModuleButton(int wichMenu) {
     }
   }
   if (digitalRead(buttonLeft) == LOW) {
+    sceltaSd = 0;
     switch (wichMenu) {
       case 1:
         scelta = 0;
@@ -134,6 +154,64 @@ void checkModuleButton(int wichMenu) {
     }
   }
   if (digitalRead(buttonSelect) == LOW) {
+  }
+  delay(150);
+}
+///////////////////Button for the sd menu///////////////////////
+void checkSdButton() {
+  if (analogRead(buttonUp) == 0) {
+    if (selectedFileNumber > 0) {
+      selectedFileNumber--;
+      File dir;
+      switch (type) {
+        case 1:
+          dir = SD.open("/badusb/");
+          break;
+        case 2:
+          dir = SD.open("/rfid/");
+          break;
+        case 3:
+          dir = SD.open("/ir/");
+          break;
+        case 4:
+          dir = SD.open("/rf/");
+          break;
+      }
+      fileCount = countfile(dir);
+      sdDisplay(dir,type);
+    }
+  }
+  if (digitalRead(buttonDown) == LOW) {
+    if (selectedFileNumber < fileCount) {
+      selectedFileNumber++;
+      File dir;
+      switch (type) {
+        case 1:
+          dir = SD.open("/badusb/");
+          break;
+        case 2:
+          dir = SD.open("/rfid/");
+          break;
+        case 3:
+          dir = SD.open("/ir/");
+          break;
+        case 4:
+          dir = SD.open("/rf/");
+          break;
+      }
+      fileCount = countfile(dir);
+      sdDisplay(dir,type);
+      
+    }
+  }
+  if (digitalRead(buttonRight) == LOW) {
+  }
+  if (digitalRead(buttonSelect) == LOW) {
+    sceltaSd = selectedFileNumber;
+  }
+  if (digitalRead(buttonLeft) == LOW) {
+    sceltaSubMenu = 0;
+    sceltaSd = 0;
   }
   delay(150);
 }

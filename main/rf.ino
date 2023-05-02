@@ -1,12 +1,14 @@
 void rf() {
+  type = 4;
   switch (sceltaSubMenu) {
     case 0:
-      graficair();
+      subMenuDisplay();
       break;
     case 1:
       scanRf();
       break;
     case 2:
+      sdMenuDisplay(4);
       break;
   }
 }

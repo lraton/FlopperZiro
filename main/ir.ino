@@ -1,12 +1,14 @@
 void ir() {
+  type = 3;
   switch (sceltaSubMenu) {
     case 0:
-      graficair();
+      subMenuDisplay();
       break;
     case 1:
       scanIr();
       break;
     case 2:
+      sdMenuDisplay(3);
       break;
   }
 }
@@ -200,7 +202,7 @@ void emulateIr() {
 
 void saveIr() {
   scanbase();
-  if (scanning==0) {
+  if (scanning == 0) {
     if (sdbegin) {
       display.setCursor(33, 30);
       display.println("Saving...");
@@ -217,9 +219,9 @@ void saveIr() {
       display.setCursor(33, 30);
       display.println("SD Error...");
     }
-  }else{
+  } else {
     display.setCursor(30, 30);
-      display.println("Nothing to send");
+    display.println("Nothing to send");
   }
 
   battery();

@@ -1,12 +1,14 @@
 void rfid() {
+  type = 2;
   switch (sceltaSubMenu) {
     case 0:
-      graficair();
+      subMenuDisplay();
       break;
     case 1:
       scanRfid();
       break;
     case 2:
+      sdMenuDisplay(2);
       break;
   }
 }

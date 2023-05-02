@@ -20,12 +20,18 @@ uint16_t rawData[67];
 String data = "";
 int scanning = 1;
 
-//pin sd
+//Sd variables
 #define SPI_SPEED SD_SCK_MHZ(4)
 #define SD_PIN A0
-bool sdbegin = false;
 SdFat SD;
 File file;
+bool sdbegin = false;
+char fileName[50];
+char selectedFile[50];
+int type=0;
+int sceltaSd=0;
+int selectedFileNumber=0;
+int fileCount=0;  //da aggiungere funzione che conta quanti file ci sono
 
 //pin button
 #define buttonUp (A4)

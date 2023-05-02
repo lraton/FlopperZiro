@@ -1,13 +1,15 @@
 //the badusb function
 void badusb() {
+  type = 1;
   switch (sceltaSubMenu) {
     case 0:
-      graficair();
+      subMenuDisplay();
       break;
     case 1:
       selectedbadusb();
       break;
     case 2:
+      sdMenuDisplay(1);
       break;
   }
 }
