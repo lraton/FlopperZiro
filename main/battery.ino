@@ -11,12 +11,12 @@ void battery() {
     bat_percentage = 1;
   }
 
-  Serial.print("Analog Value = ");
-  Serial.print(sensorValue);
-  Serial.print("\t Output Voltage = ");
-  Serial.print(voltage);
-  Serial.print("\t Battery Percentage = ");
-  Serial.println(bat_percentage);
+  //Serial.print("Analog Value = ");
+  //Serial.print(sensorValue);
+  //Serial.print("\t Output Voltage = ");
+  //Serial.print(voltage);
+  //Serial.print("\t Battery Percentage = ");
+  //Serial.println(bat_percentage);
   if (bat_percentage < 100 && bat_percentage > 10) {
     display.setCursor(105, 5);
   } else {

@@ -93,7 +93,7 @@ void handleSubMenuSelectButton() {
         break;
     }
     fileCount = countfile(dir);
-    sdDisplay(dir,type);
+    sdDisplay(dir, type);
   }
 }
 ////////////////////button on the last menu////////////////////////////
@@ -120,8 +120,8 @@ void checkModuleButton(int wichMenu) {
     sceltaSd = 0;
     switch (wichMenu) {
       case 1:
-        scelta = 0;
-        currentPage = 1;
+        scanning = 1;
+        sceltaSubMenu = 0;
         break;
       case 2:
         scanning = 1;
@@ -178,7 +178,7 @@ void checkSdButton() {
           break;
       }
       fileCount = countfile(dir);
-      sdDisplay(dir,type);
+      sdDisplay(dir, type);
     }
   }
   if (digitalRead(buttonDown) == LOW) {
@@ -200,8 +200,7 @@ void checkSdButton() {
           break;
       }
       fileCount = countfile(dir);
-      sdDisplay(dir,type);
-      
+      sdDisplay(dir, type);
     }
   }
   if (digitalRead(buttonRight) == LOW) {
