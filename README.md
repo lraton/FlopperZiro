@@ -29,9 +29,10 @@ Component:
 
 ## To Do
 ### Software
-- [ ]    Resovle SD problem with SSD1306
-    - [ ]    Do the sd menu'
-    - [ ]    save/load from sd
+- [X]    Resovle SD problem with SSD1306
+    - [X]    Do the sd menu'
+    - [X]    save/load from sd
+    - [ ]    Fix bugs on the sd listing
 - [X]    Finish the rf scanner and sender
 - [X]   Menu'
 - [X]   BadUsb
