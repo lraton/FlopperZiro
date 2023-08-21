@@ -58,14 +58,12 @@ void handleSubMenuUpButton() {
   if (currentPageSubMenu > 0) {
     currentPageSubMenu--;
   }
-  Serial.println(currentPageSubMenu);
 }
 
 void handleSubMenuDownButton() {
   if (currentPageSubMenu < numPagesSubMenu - 1) {
     currentPageSubMenu++;
   }
-  Serial.println(currentPageSubMenu);
 }
 
 void handleSubMenuLeftButton() {
@@ -118,6 +116,7 @@ void checkModuleButton(int wichMenu) {
   }
   if (digitalRead(buttonLeft) == LOW) {
     sceltaSd = 0;
+    selectedFileNumber = 1;
     switch (wichMenu) {
       case 1:
         scanning = 1;
@@ -160,7 +159,7 @@ void checkModuleButton(int wichMenu) {
 ///////////////////Button for the sd menu///////////////////////
 void checkSdButton() {
   if (analogRead(buttonUp) == 0) {
-    if (selectedFileNumber > 0) {
+    if (selectedFileNumber > 1) {
       selectedFileNumber--;
       File dir;
       switch (type) {
@@ -207,9 +206,13 @@ void checkSdButton() {
   }
   if (digitalRead(buttonSelect) == LOW) {
     sceltaSd = selectedFileNumber;
+    if (type == 1) {
+      sceltaSubMenu=1;
+    }
   }
   if (digitalRead(buttonLeft) == LOW) {
     sceltaSubMenu = 0;
+    selectedFileNumber = 1;
     sceltaSd = 0;
   }
   delay(150);

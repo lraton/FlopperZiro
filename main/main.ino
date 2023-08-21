@@ -28,10 +28,11 @@ File file;
 bool sdbegin = false;
 char fileName[50];
 char selectedFile[50];
-int type=0;
-int sceltaSd=0;
-int selectedFileNumber=0;
-int fileCount=0;  //da aggiungere funzione che conta quanti file ci sono
+int type = 0;
+int sceltaSd = 0;
+int selectedFileNumber = 1;
+int fileCount = 0;  //da aggiungere funzione che conta quanti file ci sono
+String buffer;
 
 //pin button
 #define buttonUp (A4)
@@ -90,7 +91,7 @@ uint8_t uidLength;                        // Length of the UID (4 or 7 bytes dep
 Adafruit_SSD1306 display(128, 64);
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Wire.begin();
 
   //setup button
@@ -130,15 +131,14 @@ void setup() {
     //while (1);
   }
   nfc.SAMConfig();
-  
+
   if (SD.begin(SD_PIN, SPI_SPEED)) {
-    sdbegin=true;
+    sdbegin = true;
     Serial.println("SD");
   } else {
-    sdbegin=false;
+    sdbegin = false;
     Serial.println("NO SD");
   }
-  
 }
 
 void loop() {

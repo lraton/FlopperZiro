@@ -206,13 +206,20 @@ void saveIr() {
     if (sdbegin) {
       display.setCursor(33, 30);
       display.println("Saving...");
-      if (SD.exists("ir/prova.txt")) {
-        Serial.println("gia esistente");
+      if (SD.exists("/ir/prova.txt")) {
+        display.setCursor(33, 30);
+        display.println("Già esistente");
       } else {
-        file = SD.open("ir/prova.txt", FILE_WRITE);
+        file = SD.open("/ir/prova.txt", FILE_WRITE);
+        file.println(irproducer);
+        file.println(data);
         for (int i = 0; i < 67; i++) {
-          file.write("ciao");
+          file.print(rawData[i]);
+          if (i != 66) {
+            file.print(" ");
+          }
         }
+        file.println();
         file.close();
       }
     } else {
@@ -223,7 +230,6 @@ void saveIr() {
     display.setCursor(30, 30);
     display.println("Nothing to send");
   }
-
   battery();
   delay(2000);
 }

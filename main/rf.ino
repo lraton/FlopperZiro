@@ -60,13 +60,13 @@ void saveRf() {
     if (sdbegin) {
       display.setCursor(33, 30);
       display.println("Saving...");
-      if (SD.exists("ir/prova.txt")) {
+      if (SD.exists("/rf/prova.txt")) {
         Serial.println("gia esistente");
       } else {
-        file = SD.open("ir/prova.txt", FILE_WRITE);
-        for (int i = 0; i < 67; i++) {
-          file.write("ciao");
-        }
+        file = SD.open("/rf/prova.txt", FILE_WRITE);
+        file.println(rfvalue);
+        file.println(rfbit);
+        file.println(rfprotocol);
         file.close();
       }
     } else {

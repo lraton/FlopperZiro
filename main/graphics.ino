@@ -544,4 +544,3 @@ void graficascan() {
   display.setCursor(33, 30);
   display.println("Scanning...");
 }
-

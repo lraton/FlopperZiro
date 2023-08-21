@@ -8,10 +8,12 @@ boolean first = true;
 String DEFAULT_FILE_NAME = "script.txt";
 
 void setup() {
-
-  if (!SD.begin(A5)) {
+  Serial.begin(9600);
+  if (!SD.begin(A0)) {
     Serial.println("Inserisci sd");
     return;
+  }else{
+    Serial.println("foritssimo");
   }
   
   myFile = SD.open(DEFAULT_FILE_NAME);
@@ -34,6 +36,7 @@ void setup() {
     
     myFile.close();
   } else {
+    Serial.println("No file");
   }
 
   Keyboard.end();

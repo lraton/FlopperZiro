@@ -17,7 +17,7 @@ void selectedbadusb() {
   graficausb();
   if (sdbegin) {
     display.setCursor(33, 30);
-    display.println("script.txt");  //da cambiare in base a quale scegli
+    display.println(String(selectedFile));  //da cambiare in base a quale scegli
   } else {
     display.setCursor(33, 30);
     display.println("SD Error...");
@@ -27,7 +27,8 @@ void selectedbadusb() {
 }
 
 void emulateUsb() {
-  String DEFAULT_FILE_NAME = "script.txt";
+  graficausb();
+  String DEFAULT_FILE_NAME = String(selectedFile);
   if (sdbegin) {
     display.setCursor(33, 30);
     display.println("Sending...");
