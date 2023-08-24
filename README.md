@@ -1,7 +1,8 @@
 
 # Flopper Ziro
 
-An orribol copi of FilipperZero, uit worst inglish
+An orribol copi of FlipperZero, uit worst inglish
+A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino IDE
 
 Component:
 - STM32-L432KC (Microcontroller) 
