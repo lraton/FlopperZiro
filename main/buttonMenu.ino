@@ -159,8 +159,6 @@ void checkModuleButton(int wichMenu) {
 ///////////////////Button for the sd menu///////////////////////
 void checkSdButton() {
   if (analogRead(buttonUp) == 0) {
-    if (selectedFileNumber > 1) {
-      selectedFileNumber--;
       File dir;
       switch (type) {
         case 1:
@@ -176,13 +174,16 @@ void checkSdButton() {
           dir = SD.open("/rf/");
           break;
       }
+    if (selectedFileNumber > 1) {
+      selectedFileNumber--;
       fileCount = countfile(dir);
+      sdDisplay(dir, type);
+    }else{
+      selectedFileNumber=fileCount;
       sdDisplay(dir, type);
     }
   }
   if (digitalRead(buttonDown) == LOW) {
-    if (selectedFileNumber < fileCount) {
-      selectedFileNumber++;
       File dir;
       switch (type) {
         case 1:
@@ -198,7 +199,12 @@ void checkSdButton() {
           dir = SD.open("/rf/");
           break;
       }
+    if (selectedFileNumber < fileCount) {
+      selectedFileNumber++;
       fileCount = countfile(dir);
+      sdDisplay(dir, type);
+    }else{
+      selectedFileNumber=1;
       sdDisplay(dir, type);
     }
   }

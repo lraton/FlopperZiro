@@ -28,7 +28,7 @@ void selectedbadusb() {
 
 void emulateUsb() {
   graficausb();
-  String DEFAULT_FILE_NAME = String(selectedFile);
+  String DEFAULT_FILE_NAME = "/badusb/"+String(selectedFile);
   if (sdbegin) {
     display.setCursor(33, 30);
     display.println("Sending...");

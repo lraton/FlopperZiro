@@ -9,33 +9,64 @@ void sdMenuDisplay(int wichType) {
 }
 
 void sdDisplay(File dir, int wichType) {
-  display.clearDisplay();
-  display.setCursor(0, 5);
   int i = 1;
-  while (file.openNext(&dir, O_RDONLY)) {
-    if (i == selectedFileNumber) {
-      file.getName(fileName, sizeof(fileName));
-      //Serial.print("> ");
-      //Serial.println(fileName);
-      display.print("> ");
-      display.println(String(fileName));
-      strcpy(selectedFile, fileName);
-      Serial.println(selectedFile);
-    } else {
-      file.getName(fileName, sizeof(fileName));
-      //Serial.println(fileName);
-      display.print("  ");
-      display.println(String(fileName));
-    }
-    file.close();
-    i++;
+
+  int pages = fileCount / 6;
+  int add = fileCount % 6;
+  if (add > 0) {
+    pages = pages + 1;
   }
+  int currentPage = selectedFileNumber / 6;
+  int addCurrentPage = selectedFileNumber % 6;
+  if (addCurrentPage > 0) {
+    currentPage = currentPage + 1;
+  }
+
+  Serial.print("Pages:");
+  Serial.println(pages);
+  Serial.print("Current page:");
+  Serial.println(currentPage);
+
+  display.clearDisplay();
+  display.drawBitmap(0, 0, frame, 128, 64, WHITE);
+  int positionText=4;
+  display.setCursor(10, positionText);
+  while (true) {
+    file.openNext(&dir, O_RDONLY);
+    if (!file || i > currentPage * 6) {
+      break;
+    }
+    if (i > currentPage * 6 - 6) {
+      file.getName(fileName, sizeof(fileName));
+      if (i == selectedFileNumber) {
+        display.print("> ");
+        display.println(String(fileName));
+        strcpy(selectedFile, fileName);
+
+        Serial.print("> ");
+        Serial.println(selectedFile);
+      } else {
+        display.print("  ");
+        display.println(String(fileName));
+
+        Serial.print("  ");
+        Serial.println(selectedFile);
+      }
+      file.close();
+      display.setCursor(10, positionText=positionText+10);
+    }
+    i++;
+    
+  }
+
   display.display();
 }
 
 void selectedSd(int wichType) {
   switch (wichType) {
     sceltaSubMenu = 1;
+    case 1:
+      break;
     case 2:
       break;
     case 3:
