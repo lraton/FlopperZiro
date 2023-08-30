@@ -1,7 +1,7 @@
 
 # Flopper Ziro
 
-An orribol copi of FlipperZero, uit worst inglish
+An orribol copi of FlipperZero, uit worst inglish<br>
 A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino IDE
 
 Component:
@@ -33,7 +33,8 @@ Component:
 - [X]    Resovle SD problem with SSD1306
     - [X]    Do the sd menu'
     - [X]    save/load from sd
-    - [ ]    Fix bugs on the sd listing
+    - [X]    Make sd listing
+        - [ ]    Fix bugs on the sd listing 
 - [X]    Finish the rf scanner and sender
 - [X]   Menu'
 - [X]   BadUsb
