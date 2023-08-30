@@ -219,6 +219,7 @@ void saveIr() {
             file.print(" ");
           }
         }
+        file.print(" ");
         file.println();
         file.close();
       }

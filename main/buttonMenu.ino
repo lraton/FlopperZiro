@@ -58,11 +58,16 @@ void handleSubMenuUpButton() {
   if (currentPageSubMenu > 0) {
     currentPageSubMenu--;
   }
+  if(currentPageSubMenu==0){
+    currentPageSubMenu=numPagesSubMenu - 1;
+  }
 }
 
 void handleSubMenuDownButton() {
   if (currentPageSubMenu < numPagesSubMenu - 1) {
     currentPageSubMenu++;
+  }else{
+    currentPageSubMenu=0;
   }
 }
 

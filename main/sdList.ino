@@ -2,7 +2,7 @@ void sdMenuDisplay(int wichType) {
   if (sceltaSd == 0) {
     checkSdButton();
   } else {
-    if (sceltaSd > 1) {
+    if (sceltaSd >= 1) {
       selectedSd(wichType);
     }
   }
@@ -42,15 +42,9 @@ void sdDisplay(File dir, int wichType) {
         display.print("> ");
         display.println(String(fileName));
         strcpy(selectedFile, fileName);
-
-        Serial.print("> ");
-        Serial.println(selectedFile);
       } else {
         display.print("  ");
         display.println(String(fileName));
-
-        Serial.print("  ");
-        Serial.println(selectedFile);
       }
       file.close();
       display.setCursor(10, positionText=positionText+10);
@@ -77,9 +71,17 @@ void selectedSd(int wichType) {
         buffer = file.readStringUntil('\n');
         data = buffer;
         buffer = file.readStringUntil('\n');
-        //buffer.toCharArray(rawdataChar,67);
-        Serial.println(buffer);
-        //rawData = buffer.toInt();
+        memset(rawData, 0, sizeof rawData);
+        int n=0;
+        for(int k=0; k<67;k++){
+          String tempData="";
+          while(buffer[n]!=' '){
+            tempData=tempData+buffer[n];
+            rawData[k]=tempData.toInt();
+            n++;
+          }
+          n++;
+        }
         file.close();
         scanning = 0;
         sceltaSubMenu = 1;

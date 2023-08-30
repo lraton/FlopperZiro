@@ -575,19 +575,24 @@ void graficausb() {
 
 void subMenuDisplay() {
   display.clearDisplay();
-  display.setCursor(0, 17);
+  display.drawBitmap(0, 0, frame, 128, 64, WHITE);
+  int positionText=17;
+  display.setCursor(10, positionText);
   switch (currentPageSubMenu) {
     case 0:
       currentPageSubMenu = 1;
       display.println("> Scan Signal");
+      display.setCursor(10, positionText=positionText+10);
       display.println("Emulate");
       break;
     case 1:
       display.println("> Scan Signal");
+      display.setCursor(10, positionText=positionText+10);
       display.println("Emulate");
       break;
     case 2:
       display.println("Scan Signal");
+      display.setCursor(10, positionText=positionText+10);
       display.println("> Emulate");
       break;
   }
