@@ -29,7 +29,7 @@ void sdDisplay(File dir, int wichType) {
 
   display.clearDisplay();
   display.drawBitmap(0, 0, frame, 128, 64, WHITE);
-  int positionText=4;
+  int positionText = 4;
   display.setCursor(10, positionText);
   while (true) {
     file.openNext(&dir, O_RDONLY);
@@ -47,10 +47,9 @@ void sdDisplay(File dir, int wichType) {
         display.println(String(fileName));
       }
       file.close();
-      display.setCursor(10, positionText=positionText+10);
+      display.setCursor(10, positionText = positionText + 10);
     }
     i++;
-    
   }
 
   display.display();
@@ -72,12 +71,12 @@ void selectedSd(int wichType) {
         data = buffer;
         buffer = file.readStringUntil('\n');
         memset(rawData, 0, sizeof rawData);
-        int n=0;
-        for(int k=0; k<67;k++){
-          String tempData="";
-          while(buffer[n]!=' '){
-            tempData=tempData+buffer[n];
-            rawData[k]=tempData.toInt();
+        int n = 0;
+        for (int k = 0; k < 67; k++) {
+          String tempData = "";
+          while (buffer[n] != ' ') {
+            tempData = tempData + buffer[n];
+            rawData[k] = tempData.toInt();
             n++;
           }
           n++;

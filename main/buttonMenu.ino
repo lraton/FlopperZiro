@@ -58,16 +58,16 @@ void handleSubMenuUpButton() {
   if (currentPageSubMenu > 0) {
     currentPageSubMenu--;
   }
-  if(currentPageSubMenu==0){
-    currentPageSubMenu=numPagesSubMenu - 1;
+  if (currentPageSubMenu == 0) {
+    currentPageSubMenu = numPagesSubMenu - 1;
   }
 }
 
 void handleSubMenuDownButton() {
   if (currentPageSubMenu < numPagesSubMenu - 1) {
     currentPageSubMenu++;
-  }else{
-    currentPageSubMenu=0;
+  } else {
+    currentPageSubMenu = 0;
   }
 }
 
@@ -164,52 +164,52 @@ void checkModuleButton(int wichMenu) {
 ///////////////////Button for the sd menu///////////////////////
 void checkSdButton() {
   if (analogRead(buttonUp) == 0) {
-      File dir;
-      switch (type) {
-        case 1:
-          dir = SD.open("/badusb/");
-          break;
-        case 2:
-          dir = SD.open("/rfid/");
-          break;
-        case 3:
-          dir = SD.open("/ir/");
-          break;
-        case 4:
-          dir = SD.open("/rf/");
-          break;
-      }
+    File dir;
+    switch (type) {
+      case 1:
+        dir = SD.open("/badusb/");
+        break;
+      case 2:
+        dir = SD.open("/rfid/");
+        break;
+      case 3:
+        dir = SD.open("/ir/");
+        break;
+      case 4:
+        dir = SD.open("/rf/");
+        break;
+    }
     if (selectedFileNumber > 1) {
       selectedFileNumber--;
       fileCount = countfile(dir);
       sdDisplay(dir, type);
-    }else{
-      selectedFileNumber=fileCount;
+    } else {
+      selectedFileNumber = fileCount;
       sdDisplay(dir, type);
     }
   }
   if (digitalRead(buttonDown) == LOW) {
-      File dir;
-      switch (type) {
-        case 1:
-          dir = SD.open("/badusb/");
-          break;
-        case 2:
-          dir = SD.open("/rfid/");
-          break;
-        case 3:
-          dir = SD.open("/ir/");
-          break;
-        case 4:
-          dir = SD.open("/rf/");
-          break;
-      }
+    File dir;
+    switch (type) {
+      case 1:
+        dir = SD.open("/badusb/");
+        break;
+      case 2:
+        dir = SD.open("/rfid/");
+        break;
+      case 3:
+        dir = SD.open("/ir/");
+        break;
+      case 4:
+        dir = SD.open("/rf/");
+        break;
+    }
     if (selectedFileNumber < fileCount) {
       selectedFileNumber++;
       fileCount = countfile(dir);
       sdDisplay(dir, type);
-    }else{
-      selectedFileNumber=1;
+    } else {
+      selectedFileNumber = 1;
       sdDisplay(dir, type);
     }
   }
@@ -218,7 +218,7 @@ void checkSdButton() {
   if (digitalRead(buttonSelect) == LOW) {
     sceltaSd = selectedFileNumber;
     if (type == 1) {
-      sceltaSubMenu=1;
+      sceltaSubMenu = 1;
     }
   }
   if (digitalRead(buttonLeft) == LOW) {

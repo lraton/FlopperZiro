@@ -206,22 +206,35 @@ void saveIr() {
     if (sdbegin) {
       display.setCursor(33, 30);
       display.println("Saving...");
-      if (SD.exists("/ir/prova.txt")) {
-        display.setCursor(33, 30);
-        display.println("Già esistente");
-      } else {
-        file = SD.open("/ir/prova.txt", FILE_WRITE);
-        file.println(irproducer);
-        file.println(data);
-        for (int i = 0; i < 67; i++) {
-          file.print(rawData[i]);
-          if (i != 66) {
-            file.print(" ");
-          }
+      for (int i=0; i<100; i++) {
+
+        String title;
+        if (i < 10 && i >= 0) {
+          title = "/ir/ir_0" + String(i);
+          title = title + ".txt";
+        } else {
+          title = "/ir/ir_" + String(i);
+          title = title + ".txt";
         }
-        file.print(" ");
-        file.println();
-        file.close();
+
+        if (SD.exists(title)) {
+          //display.setCursor(33, 30);
+          //display.println("Già esistente");
+        } else {
+          file = SD.open(title, FILE_WRITE);
+          file.println(irproducer);
+          file.println(data);
+          for (int i = 0; i < 67; i++) {
+            file.print(rawData[i]);
+            if (i != 66) {
+              file.print(" ");
+            }
+          }
+          file.print(" ");
+          file.println();
+          file.close();
+          break;
+        }
       }
     } else {
       display.setCursor(33, 30);

@@ -60,14 +60,28 @@ void saveRf() {
     if (sdbegin) {
       display.setCursor(33, 30);
       display.println("Saving...");
-      if (SD.exists("/rf/prova.txt")) {
-        Serial.println("gia esistente");
-      } else {
-        file = SD.open("/rf/prova.txt", FILE_WRITE);
-        file.println(rfvalue);
-        file.println(rfbit);
-        file.println(rfprotocol);
-        file.close();
+      for (int i = 0; i < 100; i++) {
+
+        String title;
+        if (i < 10 && i >= 0) {
+          title = "/rf/rf_0" + String(i);
+          title = title + ".txt";
+        } else {
+          title = "/rf/rf_" + String(i);
+          title = title + ".txt";
+        }
+
+        if (SD.exists(title)) {
+          //display.setCursor(33, 30);
+          //display.println("Già esistente");
+        }else {
+          file = SD.open(title, FILE_WRITE);
+          file.println(rfvalue);
+          file.println(rfbit);
+          file.println(rfprotocol);
+          file.close();
+          break;
+        }
       }
     } else {
       display.setCursor(33, 30);
