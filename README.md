@@ -46,3 +46,6 @@ Component:
 - [X]   First pcb
 - [ ]   Search alternativa to the pn532 for emualtion
 - [ ]   New version of pcb
+
+![profile pic](/img/img-front.jpg)
+![profile pic](/img/img-behind.jpg)
