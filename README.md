@@ -3,6 +3,7 @@
 
 An orribol copi of FlipperZero, uit worst inglish<br>
 A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino IDE
+![profile pic](/img/img-profile.jpg)
 
 Component:
 - STM32-L432KC (Microcontroller) 
