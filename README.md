@@ -10,13 +10,14 @@ Component:
 - FS1000a (Radio freq Transmitter) 
 - RXB12 (Radio freq Receiver) 
 - PN532 (RFID/NFC) 
-- IR LED & Reciver 
+- IR LED & Reciver
+- 2N222A PBFREE
 - SSD1306(Display 128x64 OLED) 
 - TF CardMemory Shield 
 - TP4056 (Battery charger) 
 - DC-DC 5V BOOST (voltage booster) 
 - 6x 6x6x8mm push button 
-- micro usb smd 
+- Micro usb smd 
 - Battery 3.7 lipo
 
 
