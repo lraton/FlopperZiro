@@ -41,11 +41,12 @@ Component:
 - [X]   BadUsb
 - [X]   Ir
 - [X]   Rfid (whitout emulation)
+    - For now can only read UID
 
 ### Hardware
 - [X]   First pcb
+- [X]   New version of pcb
 - [ ]   Search alternativa to the pn532 for emualtion
-- [ ]   New version of pcb
 
 ![profile pic](/img/img-front.jpg)
 ![profile pic](/img/img-behind.jpg)
