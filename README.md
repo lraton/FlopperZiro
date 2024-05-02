@@ -11,8 +11,11 @@
 An orribol copi of FlipperZero, uit worst inglish<br>
 A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino IDE
 ![profile pic](/img/img-profile.jpg)
-<iframe style="width:100%;height:auto;min-width:600px;min-height:400px;" src="https://star-history.com/embed?secret=Z2hwX3FxcnVwY2ZQRXQzZ0xjd0dIYzlhM05ZWmhheDQxaTNqYmpLUQ==#lraton/FlopperZiro&Date" frameBorder="0"></iframe>
-Component:
+
+## Star History
+[![Star History Chart](https://api.star-history.com/svg?repos=lraton/FlopperZiro&type=Date)](https://star-history.com/#lraton/FlopperZiro&Date)
+
+## Component:
 - STM32-L432KC (Microcontroller) 
 - FS1000a (Radio freq Transmitter) 
 - RXB12 (Radio freq Receiver) 
