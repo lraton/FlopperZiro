@@ -38,13 +38,25 @@ void rfid() {
 void scanRfid() {
   if (scanning == 1) {
     graficascan();
-    //battery();
+    battery();
+
+    // Keyb on NDEF and Mifare Classic should be the same
+    uint8_t keyuniversal[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
     uint8_t success;
-    success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, 50);
+    success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
+
     if (success) {
       scanbase();
-      Serial.print("UID Value: ");
+      // Display some basic information about the card
+      Serial.println("Found an ISO14443A card");
+      Serial.print("  UID Length: ");
+      Serial.print(uidLength, DEC);
+      Serial.println(" bytes");
+      Serial.print("  UID Value: ");
       nfc.PrintHex(uid, uidLength);
+      Serial.println("");
+
+
       display.setCursor(20, 25);
       display.print("UID: ");
       for (int i = 0; i < uidLength; i++) {
@@ -54,7 +66,7 @@ void scanRfid() {
           display.println(uid[i]);
         }
       }
-      display.setCursor(20, 35);
+      display.setCursor(15, 35);
       display.print("Lenght: " + String(uidLength) + " Bytes");
       scanning = 0;
     }
@@ -77,55 +89,27 @@ void scanRfid() {
 }
 
 void emulateRfid() {
-  uint8_t target[] = {
-    0x8C,              // INIT AS TARGET
-    0x00,              // MODE -> BITFIELD
-    0x08, 0x00,        // SENS_RES - MIFARE PARAMS
-    0xdc, 0x44, 0x20,  // NFCID1T
-    0x60,              // SEL_RES
-    0x01, 0xfe,        // NFCID2T MUST START WITH 01fe - FELICA PARAMS - POL_RES
-    0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xc0,
-    0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7,  // PAD
-    0xff, 0xff,                                // SYSTEM CODE
-    0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44,
-    0x33, 0x22, 0x11, 0x01, 0x00,  // NFCID3t MAX 47 BYTES ATR_RES
-    0x0d, 0x52, 0x46, 0x49, 0x44, 0x49, 0x4f,
-    0x74, 0x20, 0x50, 0x4e, 0x35, 0x33, 0x32  // HISTORICAL BYTES
-  };
-  /*  uint8_t target[] = {
-      PN532_COMMAND_TGINITASTARGET,
-      0x05,                  // MODE: 0x04 = PICC only, 0x01 = Passive only (0x02 = DEP only)
-
-      // MIFARE PARAMS
-      0x04, 0x00,         // SENS_RES (seeeds studio set it to 0x04, nxp to 0x08)
-      0x00, 0x00, 0x00,   // NFCID1t	(is set over sketch with setUID())
-      0x20,               // SEL_RES    (0x20=Mifare DelFire, 0x60=custom)
-
-      // FELICA PARAMS
-      0x01, 0xFE,         // NFCID2t (8 bytes) FeliCa NEEDS TO BEGIN WITH 0x01 0xFE!
-      0x05, 0x01, 0x86,
-      0x04, 0x02, 0x02,
-      0x03, 0x00,         // PAD (8 bytes)
-      0x4B, 0x02, 0x4F, 
-      0x49, 0x8A, 0x00,   
-      0xFF, 0xFF,         // System code (2 bytes)
-      
-      0x01, 0x01, 0x66,   // NFCID3t (10 bytes)
-      0x6D, 0x01, 0x01, 0x10,
-      0x02, 0x00, 0x00,
-
-	  0x00, // length of general bytes
-      0x00  // length of historical bytes
-  };
-  */
-  scanbase();
-  display.setCursor(33, 30);
   uint8_t apdubuffer[255] = {}, apdulen = 0;
-  //n fc.AsTarget();
-  nfc.setDataTarget(target, sizeof(target));  //Mimic a smart card response with a PPSE APDU
-  display.println("Sending...");
-  battery();
-  delay(2000);
+  uint8_t ppse[] = { 0x8E, 0x6F, 0x23, 0x84, 0x0E, 0x32, 0x50, 0x41, 0x59, 0x2E, 0x53, 0x59, 0x53, 0x2E, 0x44, 0x44, 0x46, 0x30, 0x31, 0xA5, 0x11, 0xBF, 0x0C, 0x0E, 0x61, 0x0C, 0x4F, 0x07, 0xA0, 0x00, 0x00, 0x00, 0x03, 0x10, 0x10, 0x87, 0x01, 0x01, 0x90, 0x00 };
+  nfc.AsTarget();
+  (void)nfc.getDataTarget(apdubuffer, &apdulen);  //Read initial APDU
+  if (apdulen > 0) {
+    for (uint8_t i = 0; i < apdulen; i++) {
+      Serial.print(" 0x");
+      Serial.print(apdubuffer[i], HEX);
+    }
+    Serial.println("");
+  }
+  nfc.setDataTarget(ppse, sizeof(ppse));    //Mimic a smart card response with a PPSE APDU
+  nfc.getDataTarget(apdubuffer, &apdulen);  //Read respond from the PoS or Terminal
+  if (apdulen > 0) {
+    for (uint8_t i = 0; i < apdulen; i++) {
+      Serial.print(" 0x");
+      Serial.print(apdubuffer[i], HEX);
+    }
+    Serial.println("");
+  }
+  delay(1000);
 }
 
 void saveRfid() {
