@@ -131,7 +131,7 @@ void saveRfid() {
       } else {
         file = SD.open("ir/prova.txt", FILE_WRITE);  // Open the file for writing
         for (int i = 0; i < 67; i++) {               // Loop to write data to the file
-          file.write("ciao");                        // Write "ciao" to the file
+          file.print("ciao");                        // Write "ciao" to the file
         }
         file.close();  // Close the file after writing
       }
