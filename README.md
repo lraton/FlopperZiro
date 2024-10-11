@@ -51,8 +51,10 @@ A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino
 - [X]   Menu'
 - [X]   BadUsb
 - [X]   Ir
-- [X]   Rfid (whitout emulation)
-    - For now can only read UID
+- [ ]   Rfid
+    - [X]    Read UID
+    - [ ]    Emualting
+    - [ ]    Finish save rfid
 
 ### Hardware
 - [X]   First pcb
