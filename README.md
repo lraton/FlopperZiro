@@ -19,7 +19,8 @@ A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino
 - STM32-L432KC (Microcontroller) 
 - FS1000a (Radio freq Transmitter) 
 - RXB12 (Radio freq Receiver) 
-- PN532 (RFID/NFC) 
+- PN532 (RFID/NFC)
+    - PN7150 (need to test)
 - IR LED & Reciver
 - 2N222A PBFREE
 - SSD1306(Display 128x64 OLED) 
@@ -59,7 +60,7 @@ A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino
 ### Hardware
 - [X]   First pcb
 - [X]   New version of pcb
-- [ ]   Search alternativa to the pn532 for emualtion
+- [ ]   Try PN7150 intead of PN532
 
 ![profile pic](/img/img-front.jpg)
 ![profile pic](/img/img-behind.jpg)
