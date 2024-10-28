@@ -5,3 +5,5 @@ Test/
 test/
 Test/Display/Display.ino
 Test/SendIr/SendIr.ino
+Test - Copia/Display/Display.ino
+Test - Copia/BatteryPercentage/Battery/Battery.ino
