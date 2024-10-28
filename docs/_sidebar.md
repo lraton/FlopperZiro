@@ -1,4 +1,11 @@
 * [Home](/)
-* [Setup](/setup.md)
-* [Usage](/usage.md)
-* [Development](/development.md)
+* Setup
+    * [Setup](/setup.md)
+* Usage
+    * [Usage](/usage.md)
+* Development
+    * [Development](/development.md)
+* Links
+    * [Github](https://github.com/lraton)
+    * [Website](https://filipponotari.site/)
+    * [Telegram](https://www.telegram.me/Iraton)
