@@ -11,7 +11,7 @@
 An orribol copi of FlipperZero, uit worst inglish<br>
 A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino IDE<br>
 <br>
-> ⚠️ **Important Notice**: This is just a fun project, it was started to pass the time, it is not at all professional and is not intended to be unless there is someone willing to lend a hand.
+> ⚠️ **Important Notice**: This is just a fun project, it was started to pass the time, it is not at all professional and is not intended to be. Is not an alternative for profesisoanl device.
 <br>
 
 ![side pic](/img/img-profile.jpg)
