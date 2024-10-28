@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FlopperZiro Documentation</title>
   <!-- Docsify theme -->
-  <link rel="stylesheet" href="//unpkg.com/docsify/themes/vue.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/vue.css" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/buble.css" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/dark.css" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/pure.css" />
 </head>
+
 <body>
   <div id="app"></div>
 
@@ -19,7 +24,12 @@
       loadSidebar: true,
       homepage: 'README.md',
       themeColor: '#42b983',
+      search: {
+        maxAge: 86400, // Expiration time for the search index in seconds
+        paths: 'auto'  // Automatically generate paths
+      }
     }
   </script>
 </body>
+
 </html>
