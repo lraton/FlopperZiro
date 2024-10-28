@@ -9,8 +9,12 @@
 <img alt="Github stars" src="https://img.shields.io/github/stars/lraton/FlopperZiro?color=56BEB8">
     
 An orribol copi of FlipperZero, uit worst inglish<br>
-A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino IDE
-![profile pic](/img/img-profile.jpg)
+A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino IDE<br>
+<br>
+> ⚠️ **Important Notice**: This is just a fun project, it was started to pass the time, it is not at all professional and is not intended to be unless there is someone willing to lend a hand.
+<br>
+
+![side pic](/img/img-profile.jpg)
 
 ## Star History
 [![Star History Chart](https://api.star-history.com/svg?repos=lraton/FlopperZiro&type=Date)](https://star-history.com/#lraton/FlopperZiro&Date)
@@ -35,9 +39,11 @@ A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino
 ## Features
 
 - RubberDucky
-- RFID/NFC
-- IR
+- RFID/NFC (Work in progress)
+- IR 
+    - Read ir signal and emulate it or save it
 - RF
+    - Read rf signal and emulate it or save it
 - Save/Load from SD
 - All programmable via Arduino Ide
 
@@ -59,8 +65,11 @@ A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino
 
 ### Hardware
 - [X]   First pcb
-- [X]   New version of pcb
+- [ ]   New version of pcb
 - [ ]   Try PN7150 intead of PN532
 
-![profile pic](/img/img-front.jpg)
-![profile pic](/img/img-behind.jpg)
+### Extra
+- [ ]   Documentation
+
+![front pic](/img/img-front.jpg)
+![back pic](/img/img-behind.jpg)
