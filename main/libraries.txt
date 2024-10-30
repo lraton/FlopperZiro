@@ -1,0 +1,29 @@
+# Libraries used in the Arduino Project
+
+Library Name: SPI
+
+Library Name: SdFat
+Version: 2.2.3
+
+Library Name: sdios
+Version: 2.0.3
+
+Library Name: Wire
+
+Library Name: RCSwitch
+Version: 2.6.4
+
+Library Name: IRremote
+Version: 4.4.1
+
+Library Name: Adafruit_SSD1306
+Version: 2.5.12
+
+Library Name: Adafruit_GFX
+Version: 1.11.11
+
+Library Name: Adafruit_PN532
+Version: 1.3.3
+
+Library Name: Keyboard
+Version: 1.0.6
