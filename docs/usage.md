@@ -3,10 +3,10 @@
 FlopperZiro provides several functionalities:
 
 ## RubberDucky Script
-1. Write or upload your RubberDucky scripts via the SD card (if available).
-2. Plug FlopperZiro into a computer, and it will execute the script.
+1. Write or upload your RubberDucky scripts via the SD card.
+2. Plug FlopperZiro into a computer using the PCB usb, and it will execute the script.
 
-## RFID/NFC
+## RFID/NFC (Only read for now, need to fix)
 1. Place an RFID/NFC card near the reader.
 2. Use the built-in commands to read or emulate the card.
 
