@@ -9,9 +9,9 @@
 <img alt="Github stars" src="https://img.shields.io/github/stars/lraton/FlopperZiro?color=56BEB8">
     
 An orribol copi of FlipperZero, uit worst inglish<br>
-A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino IDE<br>
+A Flipper Zero clone, but cheapest, DIY and simply Open Source, made with Arduino IDE<br>
 <br>
-> ⚠️ **Important Notice**: This is just a fun project, it was started to pass the time, it is not at all professional and is not intended to be. Is not an alternative for profesisoanl device.
+> ⚠️ **Important Notice**: This is just a fun project, it was started to pass the time, it is not at all professional and is not intended to be. Is not an alternative for professional device.
 <br>
 
 ![side pic](/img/img-profile.jpg)
@@ -50,7 +50,7 @@ A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino
 ## To Do
 ### Software
 - [X]    Resovle SD problem with SSD1306
-    - [X]    Do the sd menu'
+    - [X]    Do the sd menu
     - [X]    save/load from sd
     - [X]    Make sd listing
         - [ ]    Fix bugs on the sd listing 
