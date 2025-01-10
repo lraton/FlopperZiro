@@ -47,6 +47,8 @@ A Flipper Zero clone, but cheapest, DIY and simply Open Source, made with Arduin
 - Save/Load from SD
 - All programmable via Arduino Ide
 
+- Add 3d printed shell (https://www.printables.com/model/1142768-flopper-ziro-shell), not finished yet
+
 ## To Do
 ### Software
 - [X]    Resovle SD problem with SSD1306
