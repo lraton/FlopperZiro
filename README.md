@@ -2,14 +2,13 @@
 <p align="center">
 <img alt="Github top language" src="https://img.shields.io/github/languages/top/lraton/FlopperZiro?color=56BEB8">
 <img alt="Github language count" src="https://img.shields.io/github/languages/count/lraton/FlopperZiro?color=56BEB8">
-
-[<img src="https://api.gitsponsors.com/api/badge/img?id=527553495" height="20">](https://api.gitsponsors.com/api/badge/link?p=7H0/XQ9C73Jf23W5IEteyuO8mqAzGScU8PwmoMv2A+qafVsUO4/e0yVJK0qFf59xuEui5nS+JWR+KhIbo1MWc/mhsBd4CfYhxL0+LSdcrgfOEEmZ79tUKRXkdQ/4t+Bd)
-
 <img alt="Repository size" src="https://img.shields.io/github/repo-size/lraton/FlopperZiro?color=56BEB8">
 <img alt="License" src="https://img.shields.io/github/license/lraton/FlopperZiro?color=56BEB8">
 <img alt="Github issues" src="https://img.shields.io/github/issues/lraton/FlopperZiro?color=56BEB8">
 <img alt="Github forks" src="https://img.shields.io/github/forks/lraton/FlopperZiro?color=56BEB8">
 <img alt="Github stars" src="https://img.shields.io/github/stars/lraton/FlopperZiro?color=56BEB8">
+
+[<img src="https://api.gitsponsors.com/api/badge/img?id=527553495" height="20">](https://api.gitsponsors.com/api/badge/link?p=7H0/XQ9C73Jf23W5IEteyuO8mqAzGScU8PwmoMv2A+qafVsUO4/e0yVJK0qFf59xuEui5nS+JWR+KhIbo1MWc/mhsBd4CfYhxL0+LSdcrgfOEEmZ79tUKRXkdQ/4t+Bd)
 
 An orribol copi of FlipperZero, uit worst inglish<br>
 A Flipper Zero clone, but cheapest, DIY and simply Open Source, made with Arduino IDE<br>
