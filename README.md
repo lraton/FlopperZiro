@@ -7,7 +7,9 @@
 <img alt="Github issues" src="https://img.shields.io/github/issues/lraton/FlopperZiro?color=56BEB8">
 <img alt="Github forks" src="https://img.shields.io/github/forks/lraton/FlopperZiro?color=56BEB8">
 <img alt="Github stars" src="https://img.shields.io/github/stars/lraton/FlopperZiro?color=56BEB8">
-    
+
+[<img src="https://api.gitsponsors.com/api/badge/img?id=527553495" height="20">](https://api.gitsponsors.com/api/badge/link?p=7H0/XQ9C73Jf23W5IEteyjVUll1cUgOX5p0oRb1Pr4ITSk2fx4v243dXz6C39Bfk)
+
 An orribol copi of FlipperZero, uit worst inglish<br>
 A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino IDE<br>
 <br>
