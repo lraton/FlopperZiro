@@ -236,7 +236,6 @@ void saveIr() {
 
         // Check if the file already exists
         if (SD.exists(title)) {
-          // If file exists, continue to next iteration (optional display message commented out)
         } else {
           // Open the file for writing
           file = SD.open(title, FILE_WRITE);
