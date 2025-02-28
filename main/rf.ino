@@ -94,8 +94,8 @@ void saveRf() {
         // Check if the file already exists on the SD card
         if (SD.exists(title)) {
           // Uncomment below to display message if file exists
-          //display.setCursor(33, 30);
-          //display.println("Already exists");  // Indicate that the file already exists
+          display.setCursor(33, 30);
+          display.println("Already exists");  // Indicate that the file already exists
         } else {
           file = SD.open(title, FILE_WRITE);  // Open the file for writing
           file.println(rfvalue);              // Write the RF value to the file

@@ -90,50 +90,43 @@ void scanRfid() {
 
 // Function to emulate RFID transmission
 void emulateRfid() {
-  uint8_t apdubuffer[255] = {}, apdulen = 0;  // Buffer for APDU data and its length
-  // PPSE APDU data to mimic a smart card response
-  uint8_t ppse[] = { 0x8E, 0x6F, 0x23, 0x84, 0x0E, 0x32, 0x50, 0x41, 0x59, 0x2E,
-                     0x53, 0x59, 0x53, 0x2E, 0x44, 0x44, 0x46, 0x30, 0x31,
-                     0xA5, 0x11, 0xBF, 0x0C, 0x0E, 0x61, 0x0C, 0x4F, 0x07,
-                     0xA0, 0x00, 0x00, 0x00, 0x03, 0x10, 0x10, 0x87,
-                     0x01, 0x01, 0x90, 0x00 };
-  nfc.AsTarget();                                 // Set the NFC device as the target
-  (void)nfc.getDataTarget(apdubuffer, &apdulen);  // Read initial APDU data
-  if (apdulen > 0) {                              // If APDU data is received
-    for (uint8_t i = 0; i < apdulen; i++) {       // Loop through the APDU data
-      Serial.print(" 0x");                        // Print prefix for hex values
-      Serial.print(apdubuffer[i], HEX);           // Print APDU byte in hexadecimal
-    }
-    Serial.println("");  // New line for clarity
-  }
-  nfc.setDataTarget(ppse, sizeof(ppse));     // Mimic a smart card response with PPSE APDU
-  nfc.getDataTarget(apdubuffer, &apdulen);   // Read response from the Point of Sale (PoS) or terminal
-  if (apdulen > 0) {                         // If APDU response data is received
-    for (uint8_t i = 0; i < apdulen; i++) {  // Loop through the response data
-      Serial.print(" 0x");                   // Print prefix for hex values
-      Serial.print(apdubuffer[i], HEX);      // Print response byte in hexadecimal
-    }
-    Serial.println("");  // New line for clarity
-  }
-  delay(1000);  // Wait for 1 second before the next operation
 }
 
 // Function to save RFID data to an SD card
 void saveRfid() {
-  scanbase();                        // Display base information
-  if (scanning == 0) {               // Proceed only if not currently scanning
-    if (sdbegin) {                   // Check if SD card is initialized
-      display.setCursor(33, 30);     // Set cursor position for saving message
-      display.println("Saving...");  // Display saving message
-      // Check if the file "prova.txt" already exists on the SD card
-      if (SD.exists("ir/prova.txt")) {
-        Serial.println("Already exists");  // Print message indicating the file already exists
-      } else {
-        file = SD.open("ir/prova.txt", FILE_WRITE);  // Open the file for writing
-        for (int i = 0; i < 67; i++) {               // Loop to write data to the file
-          file.print("ciao");                        // Write "ciao" to the file
+  scanbase();                          // Display base information
+  if (scanning == 0) {                 // Proceed only if not currently scanning
+    if (sdbegin) {                     // Check if SD card is initialized
+      display.setCursor(33, 30);       // Set cursor position for saving message
+      display.println("Saving...");    // Display saving message
+      for (int i = 0; i < 100; i++) {  // Loop to find an available file slot
+
+        String title;  // Variable to hold the file name
+        // Generate the file name based on the index
+        if (i < 10 && i >= 0) {
+          title = "/rfid/rfid_0" + String(i) + ".txt";  // Format for single-digit index
+        } else {
+          title = "/rf/rfid_" + String(i) + ".txt";  // Format for double-digit index
         }
-        file.close();  // Close the file after writing
+
+        // Check if the file already exists on the SD card
+        if (SD.exists(title)) {
+        } else {
+          file = SD.open(title, FILE_WRITE);     // Open the file for writing
+          
+          file.println(uidLength);     // Write the uidlenght on the file
+
+          for (int i = 0; i < uidLength; i++) {  // Loop through UID bytes
+            if (i + 1 != uidLength) {            // If not the last byte
+              file.println(uid[i]);             // Write UID byte
+            } else {
+              file.println(uid[i]);  // Write last UID byte with new line
+            }
+          }
+
+          file.close();              // Close the file after writing
+          break;                     // Exit the loop after saving the data
+        }
       }
     } else {
       display.setCursor(33, 30);       // Set cursor position for SD error message
@@ -141,7 +134,7 @@ void saveRfid() {
     }
   } else {
     display.setCursor(30, 30);           // Set cursor position for no data message
-    display.println("Nothing to send");  // Indicate there is no RFID data to send
+    display.println("Nothing to send");  // Indicate there is no RF data to send
   }
   battery();    // Display battery status
   delay(2000);  // Wait for 2 seconds before the next action
