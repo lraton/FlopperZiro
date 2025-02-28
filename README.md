@@ -60,6 +60,7 @@ A Flipper Zero clone, but cheapest, DIY and simply Open Source, made with Arduin
 - [X]   Menu'
 - [X]   BadUsb
 - [X]   Ir
+    - [ ] Fix bug when show ir data
 - [ ]   Rfid
     - [X]    Read UID
     - [ ]    Emualting
