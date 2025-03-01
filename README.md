@@ -55,12 +55,12 @@ A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino
     - [X]    Do the sd menu'
     - [X]    save/load from sd
     - [X]    Make sd listing
-        - [ ]    Fix bugs on the sd listing 
+        - [X]    Fix bugs on the sd listing 
 - [X]    Finish the rf scanner and sender
 - [X]   Menu'
 - [X]   BadUsb
 - [X]   Ir
-    - [ ] Fix bug when show ir data
+    - [X] Fix bug when show ir data
 - [ ]   Rfid
     - [X]    Read UID
     - [ ]    Emualting
