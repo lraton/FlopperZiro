@@ -19,8 +19,8 @@
 // The menu function to control which menu is displayed
 void displayMenu() {
 
-  // If the tag is detected (tag == true), try to read the RFID/NFC tag
-  if (tag == true) {
+  // Lock the device until the right card is detected ()
+  if (tag == false) {
     uint8_t success;
     uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
     uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
