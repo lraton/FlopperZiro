@@ -173,7 +173,8 @@ void loop() {
       rfid();  // Handle RFID functionality 
       break;
     case 3:
-      ir();  // Handle IR functionality 
+      ir();  // Handle IR functionality
+      break;
     case 4:
       rf();  // Handle RF functionality 
       break;
