@@ -87,7 +87,7 @@ int bat_percentage;        // Battery percentage
 
 // RFID card variables for unlocking
 int buf[] = { 115, 232, 15, 186 };  // Array holding card data
-bool tag = false;                   // Tag flag (if a card is detected)
+bool tag = true;                   // Tag flag for lock device. FALSE for activate the device lock TRUE for deactivate
 
 // RF (Radio Frequency) definitions
 #define rfreceive 3              // Pin to receive RF signals
