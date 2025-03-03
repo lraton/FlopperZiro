@@ -37,9 +37,9 @@ void scanIr() {
   if (scanning == 1) {                             // If scanning is active
     graficascan();                                 // Display scan graphic/UI
     decode_results results;                        // Create a structure to store the scan results
-    if (IrReceiver.decode(&results)) {             // Decode the IR signal
-      dumpInfo(&results);                          // Print information about the signal
-      dumpCode(&results);                          // Print the raw IR code in source code format
+    if (IrReceiver.decode()) {                     // Decode the IR signal
+      dumpInfo();                                  // Print information about the signal
+      dumpCode();                                  // Print the raw IR code in source code format
       Serial.println("");                          // Add a blank line between entries
       scanbase();                                  // Update the base scan screen
       display.setCursor(20, 25);                   // Set display cursor for encoding info
@@ -75,8 +75,8 @@ void ircode(decode_results *results) {
 }
 
 // Function to display the encoding type based on the IR protocol
-void encoding(decode_results *results) {
-  switch (results->decode_type) {
+void encoding() {
+  switch (IrReceiver.decodedIRData.protocol) {
     default:
     case UNKNOWN:
       irproducer = "UNKNOWN";  // Unknown IR protocol
@@ -138,40 +138,40 @@ void encoding(decode_results *results) {
 }
 
 // Function to display information about the decoded IR signal
-void dumpInfo(decode_results *results) {
+void dumpInfo() {
   // Check if the buffer overflowed
-  if (results->overflow) {
+  if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_WAS_OVERFLOW) {
     Serial.println("IR code too long. Edit IRremoteInt.h and increase RAWLEN");
     return;
   }
 
   // Print the encoding type
   Serial.print("Encoding  : ");
-  encoding(results);
+  encoding();
   Serial.println("");
 
   // Print the code and the bit length of the IR signal
-  Serial.print("Code      : ");
-  ircode(results);
+  Serial.print("Code      : 0x");
+  Serial.print(IrReceiver.decodedIRData.decodedRawData, HEX);
   Serial.print(" (");
-  Serial.print(results->bits, DEC);
+  Serial.print(IrReceiver.decodedIRData.numberOfBits, DEC);
   Serial.println(" bits)");
 }
 
 // Function to display the raw IR code in array form for use in source code
-void dumpCode(decode_results *results) {
+void dumpCode() {
   // Start raw data array declaration
   Serial.print("unsigned int  ");
   Serial.print("rawData[");
-  Serial.print(results->rawlen - 1, DEC);  // Print the size of the array
-  Serial.print("] = {");                   // Start array declaration
+  Serial.print(IrReceiver.decodedIRData.rawDataPtr->rawlen - 1, DEC);  // Print the size of the array
+  Serial.print("] = {");                                               // Start array declaration
 
   // Print each value in the raw data buffer
-  for (int i = 1; i < results->rawlen; i++) {
-    rawData[i - 1] = results->rawbuf[i] * USECPERTICK;  // Convert timing to microseconds
-    Serial.print(results->rawbuf[i] * USECPERTICK, DEC);
-    if (i < results->rawlen - 1) Serial.print(",");  // Add comma between values except for the last one
-    if (!(i & 1)) Serial.print(" ");                 // Add space for readability every two values
+  for (int i = 1; i < IrReceiver.decodedIRData.rawDataPtr->rawlen; i++) {
+    rawData[i - 1] = IrReceiver.decodedIRData.rawDataPtr->rawbuf[i] * USECPERTICK;  // Convert timing to microseconds
+    Serial.print(IrReceiver.decodedIRData.rawDataPtr->rawbuf[i] * USECPERTICK, DEC);
+    if (i < IrReceiver.decodedIRData.rawDataPtr->rawlen - 1) Serial.print(",");  // Add comma between values except for the last one
+    if (!(i & 1)) Serial.print(" ");                                             // Add space for readability every two values
   }
 
   // End array declaration
@@ -179,30 +179,32 @@ void dumpCode(decode_results *results) {
 
   // Add comment with protocol and value
   Serial.print("  // ");
-  encoding(results);
+  encoding();
   Serial.print(" ");
-  ircode(results);
+  Serial.println(IrReceiver.decodedIRData.decodedRawData, HEX);
 
   // Add newline
   Serial.println("");
 
-  // Print known codes (if the type is not UNKNOWN)
-  if (results->decode_type != UNKNOWN) {
-    // Print address for Panasonic protocol
-    if (results->decode_type == PANASONIC) {
-      Serial.print("unsigned int  addr = 0x");
-      data = String(results->address, HEX);  // Store the address as a string
-      Serial.print(results->address, HEX);
-      Serial.println(";");
-    }
+  // Salvataggio del valore decodificato nella variabile data
+  char hexString[17];  
+  sprintf(hexString, "%lX", IrReceiver.decodedIRData.decodedRawData);
+  data = String(hexString);
 
-    // Print the data value for all protocols
-    Serial.print("unsigned int  data = 0x");
-    data = String(results->value, HEX);  // Store the value as a string
-    Serial.print(results->value, HEX);
+  Serial.println(data);
+
+  // Se il protocollo è Panasonic, salvare anche l'indirizzo
+  if (IrReceiver.decodedIRData.protocol == PANASONIC) {
+    Serial.print("unsigned int addr = 0x");
+    Serial.print(IrReceiver.decodedIRData.address, HEX);
     Serial.println(";");
   }
+
+  Serial.print("unsigned int data = 0x");
+  Serial.println(data + ";");
+
 }
+
 
 // Function to emulate/simulate sending an IR signal
 void emulateIr() {
