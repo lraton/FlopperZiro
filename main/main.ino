@@ -105,6 +105,7 @@ int rfprotocol;                  // RF protocol used
 Adafruit_PN532 nfc(IRQ, RESET, &Wire);    // RFID/NFC object
 uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // UID buffer for RFID tag
 uint8_t uidLength;                        // UID length (either 4 or 7 bytes)
+static bool detectionStarted = false;     // For non-blocking reading
 
 // Display setup
 Adafruit_SSD1306 display(128, 64);  // OLED display object (128x64 resolution)

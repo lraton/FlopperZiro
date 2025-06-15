@@ -43,7 +43,15 @@ void scanRfid() {
     // Universal key for NDEF and Mifare Classic communication
     uint8_t keyuniversal[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
     uint8_t success;                                                             // Variable to hold success status of the RFID read operation
-    success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);  // Read RFID tag
+
+    //Non-blocking reding
+
+    if (!detectionStarted) {
+      nfc.startPassiveTargetIDDetection(PN532_MIFARE_ISO14443A);
+      detectionStarted = true;
+    }
+
+    success = nfc.readDetectedPassiveTargetID(uid, &uidLength);
 
     if (success) {  // If a tag is found
       scanbase();   // Display base information
@@ -106,26 +114,26 @@ void saveRfid() {
         if (i < 10 && i >= 0) {
           title = "/rfid/rfid_0" + String(i) + ".txt";  // Format for single-digit index
         } else {
-          title = "/rf/rfid_" + String(i) + ".txt";  // Format for double-digit index
+          title = "/rfid/rfid_" + String(i) + ".txt";  // Format for double-digit index
         }
 
         // Check if the file already exists on the SD card
         if (SD.exists(title)) {
         } else {
-          file = SD.open(title, FILE_WRITE);     // Open the file for writing
-          
-          file.println(uidLength);     // Write the uidlenght on the file
+          file = SD.open(title, FILE_WRITE);  // Open the file for writing
+
+          file.println(uidLength);  // Write the uidlenght on the file
 
           for (int i = 0; i < uidLength; i++) {  // Loop through UID bytes
             if (i + 1 != uidLength) {            // If not the last byte
-              file.println(uid[i]);             // Write UID byte
+              file.println(uid[i]);              // Write UID byte
             } else {
               file.println(uid[i]);  // Write last UID byte with new line
             }
           }
 
-          file.close();              // Close the file after writing
-          break;                     // Exit the loop after saving the data
+          file.close();  // Close the file after writing
+          break;         // Exit the loop after saving the data
         }
       }
     } else {
