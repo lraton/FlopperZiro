@@ -144,12 +144,13 @@ void handleSubMenuSelectButton() {
   }
 }
 
-//////////////////// Button handling for the last module menu //////////////////////////////
+//////////////////// Button handling for the scan module menu //////////////////////////////
 
 void checkModuleButton(int wichMenu) {
   // Start scanning if the "Up" button is pressed
   if (analogRead(buttonUp) == 0) {
     scanning = 1;
+    detectionStarted = false;  //for reset rfid
   }
   // Execute different save functions depending on the active module (whichMenu)
   if (digitalRead(buttonDown) == LOW) {
@@ -173,6 +174,7 @@ void checkModuleButton(int wichMenu) {
     selectedFileNumber = 1;
     scanning = 1;
     sceltaSubMenu = 0;
+    detectionStarted = false;  //for reset rfid
   }
   // Execute emulation functions depending on the module
   if (digitalRead(buttonRight) == LOW) {

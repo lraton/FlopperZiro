@@ -38,11 +38,10 @@ void rfid() {
 void scanRfid() {
   if (scanning == 1) {  // Check if scanning is active
     graficascan();      // Update the display with scanning graphics
-    battery();          // Display the battery status
 
     // Universal key for NDEF and Mifare Classic communication
     uint8_t keyuniversal[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-    uint8_t success;                                                             // Variable to hold success status of the RFID read operation
+    uint8_t success;  // Variable to hold success status of the RFID read operation
 
     //Non-blocking reding
 
