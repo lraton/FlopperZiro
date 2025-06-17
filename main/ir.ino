@@ -237,8 +237,6 @@ void saveIr() {
 
         // Check if the file already exists
         if (SD.exists(title)) {
-          display.setCursor(33, 30);
-          display.println("Already exists");  // Indicate that the file already exists
         } else {
           // Open the file for writing
           file = SD.open(title, FILE_WRITE);
@@ -270,5 +268,4 @@ void saveIr() {
     display.println("Nothing to send");  // Display the message
   }
   battery();    // Display battery level
-  delay(2000);  // Wait for 2 seconds before the next action
 }
