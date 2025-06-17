@@ -72,7 +72,7 @@ int numPagesSubMenu = 3;     // Total number of pages in the sub-menu
 // "Tamaguino" variables (for some game or device control)
 const int sound = 0;  // Pin for sound output
 #define button1Pin (A3)
-#define button2Pin (A5)                                            
+#define button2Pin (A5)
 #define button3Pin (A2)
 int button1State = 0;  // State of button 1
 int button2State = 0;  // State of button 2
@@ -87,7 +87,7 @@ int bat_percentage;        // Battery percentage
 
 // RFID card variables for unlocking
 int buf[] = { 115, 232, 15, 186 };  // Array holding card data
-bool tag = true;                   // Tag flag for lock device. FALSE for activate the device lock TRUE for deactivate
+bool tag = true;                    // Tag flag for lock device. FALSE for activate the device lock TRUE for deactivate
 
 // RF (Radio Frequency) definitions
 #define rfreceive 3              // Pin to receive RF signals
@@ -102,10 +102,10 @@ int rfprotocol;                  // RF protocol used
 #define RESET 0  // Reset pin for RFID communication
 
 // RFID/NFC variables
-Adafruit_PN532 nfc(IRQ, RESET, &Wire);    // RFID/NFC object
-uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // UID buffer for RFID tag
-uint8_t uidLength;                        // UID length (either 4 or 7 bytes)
-static bool detectionStarted = false;     // For non-blocking reading
+Adafruit_PN532 nfc(IRQ, RESET, &Wire);       // RFID/NFC object
+uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0, 0 };  // UID buffer for RFID tag
+uint8_t uidLength;                           // UID length (either 4 or 7 bytes)
+static bool detectionStarted = false;        // For non-blocking reading
 
 // Display setup
 Adafruit_SSD1306 display(128, 64);  // OLED display object (128x64 resolution)
@@ -130,7 +130,7 @@ void setup() {
   // Setup OLED display
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // Initialize display with address 0x3C
   display.setTextColor(WHITE);                // Set text color to white
-  flopperblockedimage();                      // Display image on screen 
+  flopperblockedimage();                      // Display image on screen
 
   // Setup RF communication
   mySwitch.enableReceive(rfreceive);    // Enable RF reception
@@ -168,16 +168,16 @@ void loop() {
       displayMenu();  // Display the menu
       break;
     case 1:
-      badusb();  // Handle bad USB functionality 
+      badusb();  // Handle bad USB functionality
       break;
     case 2:
-      rfid();  // Handle RFID functionality 
+      rfid();  // Handle RFID functionality
       break;
     case 3:
       ir();  // Handle IR functionality
       break;
     case 4:
-      rf();  // Handle RF functionality 
+      rf();  // Handle RF functionality
       break;
     default:
       currentPage = 0;  // Reset to the first page of the menu
