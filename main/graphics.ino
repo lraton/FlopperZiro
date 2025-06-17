@@ -549,6 +549,29 @@ const unsigned char frame[] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
 
+// 8x8 SD card icon
+const uint8_t sd_bitmap[] PROGMEM = {
+  0b11111100, 0b00000000,
+  0b10000011, 0b11100000,
+  0b10000000, 0b00010000,
+  0b10000001, 0b11010000,
+  0b10000000, 0b00010000,
+  0b10000001, 0b11010000,
+  0b10000000, 0b00010000,
+  0b11111111, 0b11110000
+};
+
+// 12x8 battery icon
+const uint8_t battery_bitmap[] PROGMEM = {
+  0b00111100,
+  0b01111110,
+  0b01111110,
+  0b01100110,
+  0b01111110,
+  0b01111110,
+  0b01111110,
+  0b01111110
+};
 
 //funnzioni per il menu' principale
 void flopperblockedimage() {
@@ -579,12 +602,19 @@ void menuir() {
   display.drawBitmap(0, 0, immagineir, 128, 64, WHITE);
   battery();
 }
+
 void menurf() {
   display.clearDisplay();
   display.drawBitmap(0, 0, immaginerf, 128, 64, WHITE);
   battery();
 }
 
+void drawsd(int x, int y) {
+  display.drawBitmap(x, y, sd_bitmap, 12, 8, WHITE);
+}
+void drawbattery(int x, int y) {
+  display.drawBitmap(x, y, battery_bitmap, 8, 8, WHITE);
+}
 
 //menu' singoli
 void graficausb() {

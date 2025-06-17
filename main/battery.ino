@@ -47,7 +47,33 @@ void battery() {
   // Serial.println(bat_percentage);
   */
 
-  // Adjust the display cursor position based on the length of the percentage value.
+  // Adjust the display cursor position based on the length of the percentage value. SD
+
+  if (scelta == 0 && currentPage == 0) {
+    // Adjust the display cursor position based on the length of the percentage value.
+    if (int(SDpercentFree) < 100 && int(SDpercentFree) > 10) {
+      display.setCursor(105, 53);  // Set cursor for 2-digit percentage
+    } else {
+      if (int(SDpercentFree) < 10) {
+        display.setCursor(110, 53);  // Set cursor for 1-digit percentage
+      } else {
+        display.setCursor(100, 53);  // Set cursor for 100%
+      }
+    }
+    // Display the sd remaining on the screen
+    drawsd(85, 52);
+    display.print(int(SDpercentFree));
+    display.println("%");
+  } else {
+    // Display the sd remaining on the screen
+    display.setCursor(5, 5);
+    display.print(int(SDpercentFree));
+    display.print("%");
+    drawsd(display.getCursorX(), 4);
+  }
+
+
+  // Adjust the display cursor position based on the length of the percentage value. Battery
   if (bat_percentage < 100 && bat_percentage > 10) {
     display.setCursor(105, 5);  // Set cursor for 2-digit percentage
   } else {
@@ -59,6 +85,7 @@ void battery() {
   }
 
   // Display the battery percentage on the screen
+  drawbattery(85, 5);
   display.print(bat_percentage);
   display.println("%");
   display.display();  // Refresh the display with the new data
