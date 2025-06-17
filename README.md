@@ -45,6 +45,8 @@ A Flipper Zero clone, but cheapest, DIY and simply Open Source, made with Arduin
 - RF
     - Read rf signal and emulate it or save it
 - Save/Load from SD
+- Battery percentage
+- Sd memory left percentage
 - All programmable via Arduino Ide
 
 - Add 3d printed shell (https://www.printables.com/model/1142768-flopper-ziro-shell), not finished yet
@@ -63,6 +65,7 @@ A Flipper Zero clone, but cheapest, DIY and simply Open Source, made with Arduin
     - [X] Fix bug when show ir data
 - [ ]   Rfid
     - [X]    Read UID
+    - [ ]    Read ISO14443B
     - [ ]    Emualting
     - [ ]    Finish save rfid
 
