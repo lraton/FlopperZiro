@@ -187,7 +187,7 @@ void dumpCode() {
   Serial.println("");
 
   // Salvataggio del valore decodificato nella variabile data
-  char hexString[17];  
+  char hexString[17];
   sprintf(hexString, "%lX", IrReceiver.decodedIRData.decodedRawData);
   data = String(hexString);
 
@@ -202,7 +202,6 @@ void dumpCode() {
 
   Serial.print("unsigned int data = 0x");
   Serial.println(data + ";");
-
 }
 
 
@@ -238,6 +237,8 @@ void saveIr() {
 
         // Check if the file already exists
         if (SD.exists(title)) {
+          display.setCursor(33, 30);
+          display.println("Already exists");  // Indicate that the file already exists
         } else {
           // Open the file for writing
           file = SD.open(title, FILE_WRITE);
