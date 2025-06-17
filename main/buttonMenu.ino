@@ -167,6 +167,7 @@ void checkModuleButton(int wichMenu) {
         saveRf();  // Save RF data for menu 4
         break;
     }
+    SDpercentFree = sdFreeSpace();
   }
   // Handle "Left" button behavior to reset scanning and submenu for each module
   if (digitalRead(buttonLeft) == LOW) {

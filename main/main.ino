@@ -44,6 +44,7 @@ int scanning = 1;         // Variable to indicate scanning state
 SdFat SD;                        // SD card object
 File file;                       // File object for SD card
 bool sdbegin = false;            // Flag to check if SD card is initialized
+float SDpercentFree;
 char fileName[50];               // Filename buffer
 char selectedFile[50];           // Selected file buffer
 int type = 0;                    // Variable to hold type
@@ -159,6 +160,7 @@ void setup() {
   if (SD.begin(SD_PIN, SPI_SPEED)) {
     sdbegin = true;  // SD card successfully initialized
     Serial.println("SD");
+    SDpercentFree = sdFreeSpace();
   } else {
     sdbegin = false;  // SD card initialization failed
     Serial.println("NO SD");
