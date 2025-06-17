@@ -64,7 +64,7 @@ void scanRfid() {
       Serial.println("");                         // New line for clarity
 
       // Display UID value on the screen
-      display.setCursor(20, 20);             // Set cursor position for UID display
+      display.setCursor(20, 25);             // Set cursor position for UID display
       display.print("UID: ");                // Print UID label
       for (int i = 0; i < uidLength; i++) {  // Loop through UID bytes
         if (i + 1 != uidLength) {            // If not the last byte
@@ -218,8 +218,6 @@ void saveRfid() {
 
         // Check if the file already exists on the SD card
         if (SD.exists(title)) {
-          display.setCursor(33, 30);
-          display.println("Already exists");  // Indicate that the file already exists
         } else {
           file = SD.open(title, FILE_WRITE);  // Open the file for writing
 
@@ -247,5 +245,4 @@ void saveRfid() {
     display.println("Nothing to send");  // Indicate there is no RF data to send
   }
   battery();    // Display battery status
-  delay(2000);  // Wait for 2 seconds before the next action
 }

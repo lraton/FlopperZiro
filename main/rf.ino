@@ -114,5 +114,4 @@ void saveRf() {
     display.println("Nothing to send");  // Indicate there is no RF data to send
   }
   battery();    // Display battery status
-  delay(2000);  // Wait for 2 seconds before the next action
 }
