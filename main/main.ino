@@ -45,13 +45,13 @@ SdFat SD;                        // SD card object
 File file;                       // File object for SD card
 bool sdbegin = false;            // Flag to check if SD card is initialized
 float SDpercentFree;
-char fileName[50];               // Filename buffer
-char selectedFile[50];           // Selected file buffer
-int type = 0;                    // Variable to hold type
-int sceltaSd = 0;                // Choice for SD card options
-int selectedFileNumber = 1;      // Selected file number
-int fileCount = 0;               // Number of files (function to count files is needed)
-String buffer;                   // String buffer for file data
+char fileName[50];           // Filename buffer
+char selectedFile[50];       // Selected file buffer
+int type = 0;                // Variable to hold type
+int sceltaSd = 0;            // Choice for SD card options
+int selectedFileNumber = 1;  // Selected file number
+int fileCount = 0;           // Number of files (function to count files is needed)
+String buffer;               // String buffer for file data
 
 // Button pin definitions
 #define buttonUp (A4)
@@ -107,7 +107,7 @@ Adafruit_PN532 nfc(IRQ, RESET, &Wire);       // RFID/NFC object
 uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0, 0 };  // UID buffer for RFID tag
 uint8_t uidLength;                           // UID length (either 4 or 7 bytes)
 String cardType = "";
-static bool detectionStarted = false;        // For non-blocking reading
+static bool detectionStarted = false;  // For non-blocking reading
 
 // Display setup
 #define SCREEN_WIDTH 128
@@ -134,7 +134,11 @@ void setup() {
   // Setup OLED display
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // Initialize display with address 0x3C
   display.setTextColor(WHITE);                // Set text color to white
-  flopperblockedimage();                      // Display image on screen
+  if (tag) {
+    flopperbooting();  // Display image boot on screen
+  } else {
+    //flopperblocked();  //Display image blocked only if need to authenticate
+  }
 
   // Setup RF communication
   mySwitch.enableReceive(rfreceive);    // Enable RF reception
@@ -147,23 +151,21 @@ void setup() {
   // Setup RFID/NFC communication
   nfc.begin();                                      // Initialize NFC
   uint32_t versiondata = nfc.getFirmwareVersion();  // Get RFID firmware version
-  if (!versiondata) {
-    Serial.println("RFID error");  // If no RFID detected, print error
-    display.setCursor(33, 30);     // Display error on screen
-    display.println("RFID error");
+  if (!versiondata) {                               //Block until rfid detect
+    display.setCursor(52, 33);                      // Display error on screen
+    display.print("Conenct RFID");
     display.display();
-    //while (1);  // Uncomment this to stop execution if RFID is not detected
+    while (1)
+      ;
   }
   nfc.SAMConfig();  // Configure NFC for SAM mode
 
   // Setup SD card
   if (SD.begin(SD_PIN, SPI_SPEED)) {
     sdbegin = true;  // SD card successfully initialized
-    Serial.println("SD");
     SDpercentFree = sdFreeSpace();
   } else {
     sdbegin = false;  // SD card initialization failed
-    Serial.println("NO SD");
   }
 }
 

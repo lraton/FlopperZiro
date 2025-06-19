@@ -52,7 +52,7 @@ void displayMenu() {
     // Switch case to determine which page/menu to display
     switch (currentPage) {
       case 0:
-        menuprincipale();  // Show the main menu (Tamagotchi-like menu)
+        flopperimage();  // Show the main menu
         break;
       case 1:
         menuusb();  // Display USB-related menu
