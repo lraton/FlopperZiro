@@ -47,48 +47,81 @@ void battery() {
   // Serial.println(bat_percentage);
   */
 
-  // Adjust the display cursor position based on the length of the percentage value. SD
-
+  //Print SD and batetry percentage
   if (scelta == 0 && currentPage == 0) {
-    // Adjust the display cursor position based on the length of the percentage value.
-    if (int(SDpercentFree) < 100 && int(SDpercentFree) > 10) {
-      display.setCursor(105, 53);  // Set cursor for 2-digit percentage
-    } else {
-      if (int(SDpercentFree) < 10) {
-        display.setCursor(110, 53);  // Set cursor for 1-digit percentage
+    //Print SD on homepage (bottom right)
+    if (sdbegin) {
+      // Adjust the display cursor position based on the length of the percentage value.
+      if (int(SDpercentFree) < 100 && int(SDpercentFree) > 10) {
+        display.setCursor(105, 53);  // Set cursor for 2-digit percentage
       } else {
-        display.setCursor(100, 53);  // Set cursor for 100%
+        if (int(SDpercentFree) < 10) {
+          display.setCursor(110, 53);  // Set cursor for 1-digit percentage
+        } else {
+          display.setCursor(100, 53);  // Set cursor for 100%
+        }
+      }
+      // Display the sd remaining on the screen
+      drawsd(85, 52);
+      display.print(int(SDpercentFree));
+      display.println("%");
+    } else {
+      // Display the NOSD on the screen
+      drawsd(85, 52);
+      display.setCursor(100, 53);
+      display.print("NoSD");
+    }
+
+    //Print battery on homepage (bottom right)
+    // Adjust the display cursor position based on the length of the percentage value. Battery
+    if (bat_percentage < 100 && bat_percentage > 10) {
+      display.setCursor(105, 43);  // Set cursor for 2-digit percentage
+    } else {
+      if (bat_percentage < 10) {
+        display.setCursor(110, 43);  // Set cursor for 1-digit percentage
+      } else {
+        display.setCursor(100, 43);  // Set cursor for 100%
       }
     }
-    // Display the sd remaining on the screen
-    drawsd(85, 52);
-    display.print(int(SDpercentFree));
+
+    // Display the battery percentage on the screen
+    drawbattery(85, 43);
+    display.print(bat_percentage);
     display.println("%");
+    display.display();  // Refresh the display with the new data
   } else {
-    // Display the sd remaining on the screen
-    display.setCursor(5, 5);
-    display.print(int(SDpercentFree));
-    display.print("%");
-    drawsd(display.getCursorX(), 4);
-  }
-
-
-  // Adjust the display cursor position based on the length of the percentage value. Battery
-  if (bat_percentage < 100 && bat_percentage > 10) {
-    display.setCursor(105, 5);  // Set cursor for 2-digit percentage
-  } else {
-    if (bat_percentage < 10) {
-      display.setCursor(110, 5);  // Set cursor for 1-digit percentage
+    //Print sd on the other menu (top left)
+    if (sdbegin) {
+      // Display the sd remaining on the screen
+      display.setCursor(5, 5);
+      display.print(int(SDpercentFree));
+      display.print("%");
+      drawsd(display.getCursorX(), 4);
     } else {
-      display.setCursor(100, 5);  // Set cursor for 100%
+      // Display the NOSD on the screen
+      display.setCursor(5, 5);
+      display.print("No SD");
+      drawsd(display.getCursorX(), 4);
     }
-  }
 
-  // Display the battery percentage on the screen
-  drawbattery(85, 5);
-  display.print(bat_percentage);
-  display.println("%");
-  display.display();  // Refresh the display with the new data
+    //Print battery on the other menu (top right)
+    // Adjust the display cursor position based on the length of the percentage value. Battery
+    if (bat_percentage < 100 && bat_percentage > 10) {
+      display.setCursor(105, 5);  // Set cursor for 2-digit percentage
+    } else {
+      if (bat_percentage < 10) {
+        display.setCursor(110, 5);  // Set cursor for 1-digit percentage
+      } else {
+        display.setCursor(100, 5);  // Set cursor for 100%
+      }
+    }
+
+    // Display the battery percentage on the screen
+    drawbattery(85, 5);
+    display.print(bat_percentage);
+    display.println("%");
+    display.display();  // Refresh the display with the new data
+  }
 }
 
 // This function maps a floating-point value from one range to another.
