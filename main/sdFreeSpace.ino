@@ -9,7 +9,7 @@ float sdFreeSpace() {
   uint64_t freeBytes = (uint64_t)freeBlocks * 512ULL;
 
   float percentFree = 100.0 * ((float)freeBytes / (float)totalBytes);
-/*
+  /*
   Serial.print("SD Total: ");
   Serial.print(totalBytes / (1024.0 * 1024.0));
   Serial.println(" MB");
