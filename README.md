@@ -79,3 +79,5 @@ A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino
 
 ![front pic](/img/img-front.jpg)
 ![back pic](/img/img-behind.jpg)
+
+![Alt](https://repobeats.axiom.co/api/embed/aec99a18c4d9023826a57995bd009c068bbb8197.svg "Repobeats analytics image")
