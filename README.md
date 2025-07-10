@@ -66,7 +66,7 @@ A Flipper Zero clone, but cheapest, DIY and simply Open Source, made with Arduin
 - [ ]   Rfid
     - [X]    Read UID
     - [ ]    Read ISO14443B
-    - [ ]    Emualting
+    - [ ]    Emulating
     - [ ]    Finish save rfid
 
 ### Hardware
