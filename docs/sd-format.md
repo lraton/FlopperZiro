@@ -7,12 +7,12 @@ FlopperZiro uses a simple, human-readable line-by-line format for all saved file
 ## RFID / NFC — `/rfid/rfid_NN.txt`
 
 ```
-<cardType>
-<uidLength>
-<uid[0]>
-<uid[1]>
+<rfidCardType>
+<rfidUidLen>
+<rfidUid[0]>
+<rfidUid[1]>
 ...
-<uid[uidLength-1]>
+<rfidUid[rfidUidLen-1]>
 ```
 
 **Field descriptions:**
@@ -55,9 +55,9 @@ NTAG2xx
 ## IR — `/ir/ir_NN.txt`
 
 ```
-<protocol>
-<hex_value>
-<raw_timing_0> <raw_timing_1> ... <raw_timing_66> 
+<irProtocol>
+<irHexValue>
+<irRawData_0> <irRawData_1> ... <irRawData_66> 
 ```
 
 **Field descriptions:**
@@ -76,16 +76,16 @@ NEC
 9024 4512 564 564 564 1692 564 564 ...
 ```
 
-> The raw timing line is always 67 values (matching `uint16_t rawData[67]`). When replaying, `IrSender.sendRaw(rawData, 67, 38)` uses this array directly.
+> The raw timing line is always 67 values (matching `uint16_t irRawData[67]`). When replaying, `IrSender.sendRaw(irRawData, 67, 38)` uses this array directly.
 
 ---
 
 ## RF — `/rf/rf_NN.txt`
 
 ```
-<value>
-<bitlength>
-<protocol>
+<rfReceivedValue>
+<rfBitLength>
+<rfReceivedProtocol>
 ```
 
 **Field descriptions:**
@@ -104,7 +104,7 @@ NEC
 1
 ```
 
-> On replay, `mySwitch.send(rfvalue, rfbit)` is called. The protocol index is stored for reference but RCSwitch defaults to protocol 1 when sending — advanced users can add `mySwitch.setProtocol(rfprotocol)` before the send call.
+> On replay, `rfSwitch.send(rfReceivedValue, rfBitLength)` is called. The protocol index is stored for reference but RCSwitch defaults to protocol 1 when sending — advanced users can add `rfSwitch.setProtocol(rfReceivedProtocol)` before the send call.
 
 ---
 

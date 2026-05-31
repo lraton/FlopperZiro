@@ -24,48 +24,53 @@ The firmware is a **multi-file Arduino sketch** in the `main/` folder. Arduino I
 
 | Variable | Type | Purpose |
 |---|---|---|
-| `scelta` | `int` | Currently active module (0=menu, 1=badusb, 2=rfid, 3=ir, 4=rf) |
-| `sceltaSubMenu` | `int` | Current submenu option (0=submenu, 1=scan, 2=SD) |
-| `type` | `int` | Active module type (mirrors `scelta`, used by SD browser) |
-| `scanning` | `int` | `1` = actively scanning, `0` = result ready/loaded |
-| `detectionStarted` | `bool` | Non-blocking RFID detection flag |
-| `uid[]` | `uint8_t[8]` | Last read/loaded RFID UID bytes |
-| `uidLength` | `uint8_t` | Length of `uid[]` (4 or 7) |
-| `cardType` | `String` | Last read/loaded card type string |
-| `selectedFile` | `char[50]` | Currently selected SD file name |
-| `sceltaSd` | `int` | `0` = browsing, `≥1` = file selected |
-| `sdbegin` | `bool` | `true` if SD card initialized successfully |
+| `selectedModule` | `int` | Currently active module (0=menu, 1=badusb, 2=rfid, 3=ir, 4=rf) |
+| `selectedSubMenu` | `int` | Current submenu option (0=submenu, 1=scan, 2=SD) |
+| `currentModuleType` | `int` | Active module type (mirrors `selectedModule`, used by SD browser) |
+| `isScanning` | `int` | `1` = actively scanning, `0` = result ready/loaded |
+| `rfidDetectionStarted` | `bool` | Non-blocking RFID detection flag |
+| `rfidUid[]` | `uint8_t[8]` | Last read/loaded RFID UID bytes |
+| `rfidUidLen` | `uint8_t` | Length of `rfidUid[]` (4 or 7) |
+| `rfidCardType` | `String` | Last read/loaded card type string |
+| `sdSelectedFile[]` | `char[50]` | Name of the file the user has chosen |
+| `sdFileSelected` | `int` | `0` = browsing, `≥1` = file selected |
+| `sdReady` | `bool` | `true` if SD card initialized successfully |
+| `sdFreePercent` | `float` | Percentage of SD space remaining |
+| `sdFileName[]` | `char[50]` | Buffer for a file name |
+| `sdSelectedFileNum` | `int` | 1-based index of the highlighted SD file |
+| `sdFileCount` | `int` | Total number of files in the open directory |
+| `sdReadBuffer` | `String` | Temporary buffer for SD file reads |
 
 ### Main Loop Flow
 
 ```
 loop()
-  └─ switch(scelta)
-       ├─ 0 → displayMenu()     ← main menu / RFID lock
-       ├─ 1 → badusb()
-       │        └─ switch(sceltaSubMenu): subMenuDisplay | selectedbadusb | sdMenuDisplay
+  └─ switch(selectedModule)
+       ├─ 0 → handleMainMenu()     ← main menu / RFID lock
+       ├─ 1 → badUsb()
+       │        └─ switch(selectedSubMenu): drawSubMenu() | showSelectedBadUsb() | drawSdMenu(1)
        ├─ 2 → rfid()
-       │        └─ switch(sceltaSubMenu): subMenuDisplay | scanRfid | sdMenuDisplay
+       │        └─ switch(selectedSubMenu): drawSubMenu() | scanRfid() | drawSdMenu(2)
        ├─ 3 → ir()
-       │        └─ switch(sceltaSubMenu): subMenuDisplay | scanIr | sdMenuDisplay
+       │        └─ switch(selectedSubMenu): drawSubMenu() | scanIr() | drawSdMenu(3)
        └─ 4 → rf()
-                └─ switch(sceltaSubMenu): subMenuDisplay | scanRf | sdMenuDisplay
+                └─ switch(selectedSubMenu): drawSubMenu() | scanRf() | drawSdMenu(4)
 ```
 
 Every module screen ends with:
-1. `battery()` — refreshes battery and SD status on the display
-2. `checkModuleButton(type)` — reads buttons, dispatches save/emulate/back
+1. `displayBattery()` — refreshes battery and SD status on the display
+2. `handleModuleButtons(moduleType)` — reads buttons, dispatches save/emulate/back
 
 ---
 
 ## Adding a New Module
 
 1. Add a new `.ino` file to `main/`.
-2. Define `void myModule()` that sets `type = N` and switches on `sceltaSubMenu`.
+2. Define `void myModule()` that sets `currentModuleType = N` and switches on `selectedSubMenu`.
 3. Add `case N: myModule(); break;` to `loop()` in `main.ino`.
-4. Add `case N: dir = SD.open("/mymodule/"); break;` in `handleSubMenuSelectButton()` and `checkSdButton()` in `buttonMenu.ino`.
-5. Add `case N: saveMyModule(); break;` and `case N: emulateMyModule(); break;` in `checkModuleButton()`.
-6. Add `case N: /* load */ break;` in `selectedSd()` in `sdList.ino`.
+4. Add `case N: dir = SD.open("/mymodule/"); break;` in `onSubMenuSelect()` and `handleSdButtons()` in `buttonMenu.ino`.
+5. Add `case N: saveMyModule(); break;` and `case N: emulateMyModule(); break;` in `handleModuleButtons()`.
+6. Add `case N: /* load */ break;` in `loadSelectedFile()` in `sdList.ino`.
 7. Add the submenu and menu graphic functions in `graphics.ino`.
 
 ---
@@ -74,7 +79,7 @@ Every module screen ends with:
 
 | Library | Version | Used for |
 |---|---|---|
-| Adafruit PN532 | 1.3.3 | RFID read, emulate (tgInitAsTarget) |
+| Adafruit PN532 | 1.3.3 | RFID read, emulate (raw I2C command & Wire drain) |
 | Adafruit SSD1306 | 2.5.12 | OLED display driver |
 | Adafruit GFX | 1.11.11 | Display graphics primitives |
 | SdFat | 2.2.3 | SD card (SPI, FAT32) |

@@ -124,4 +124,4 @@ On the home screen these appear at the bottom right instead.
 
 ## Lock Mode
 
-FlopperZiro supports an **optional RFID lock**: if the `tag` variable is set to `false` in `main.ino`, the device will wait for a specific authorized card (defined by the `buf[]` array) before showing the main menu. Set `tag = true` to disable this feature.
+FlopperZiro supports an **optional RFID lock**: if the `deviceUnlocked` variable is set to `false` in `main.ino`, the device will wait for a specific authorized card (defined by the `authorizedUid[]` array) before showing the main menu. Set `deviceUnlocked = true` to disable this feature.

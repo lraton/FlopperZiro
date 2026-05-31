@@ -58,7 +58,7 @@ Uses the **Adafruit PN532** library in **I²C mode** (`IRQ = D1`, `RESET = D0`).
 Scanning uses **non-blocking** detection:
 
 1. `nfc.startPassiveTargetIDDetection(PN532_MIFARE_ISO14443A)` is called once when a scan starts.
-2. On each loop iteration, `nfc.readDetectedPassiveTargetID()` is polled — it returns immediately if no card is present, keeping the UI responsive.
+2. On each loop iteration, `nfc.readDetectedPassiveTargetID(rfidUid, &rfidUidLen)` is polled — it returns immediately if no card is present, keeping the UI responsive.
 
 **Card type detection:**
 
@@ -75,18 +75,18 @@ Tags are saved with `saveRfid()` when **DOWN** is pressed. Files are auto-number
 
 ### Loading Tags from SD
 
-Selecting a file in the RFID SD browser calls `selectedSd(2)`, which reads the file back into the global `uid[]`, `uidLength`, and `cardType` variables. The scan screen then shows the loaded tag, ready to emulate.
+Selecting a file in the RFID SD browser calls `loadSelectedFile(2)`, which reads the file back into the global `rfidUid[]`, `rfidUidLen`, and `rfidCardType` variables. The scan screen then shows the loaded tag, ready to emulate.
 
 ### Emulating Tags
 
-`emulateRfid()` calls `nfc.tgInitAsTarget()` with a params buffer built according to the **PN532 TgInitAsTarget** protocol (PN532 User Manual §7.3.9).
+`emulateRfid()` manually builds the raw **PN532 TgInitAsTarget** command buffer (command code `0x8C`) according to the PN532 User Manual §7.3.9 (since the standard Adafruit library doesn't expose a public `tgInitAsTarget` API). 
 
 | Card type | ATQA | SAK | UID bytes |
 |---|---|---|---|
 | Mifare Classic | `0x04 0x00` | `0x08` | 4 |
 | NTAG / Ultralight | `0x44 0x00` | `0x00` | 7 |
 
-The call blocks for up to **3 seconds** waiting for a reader to make contact, then returns — keeping the button loop responsive.
+It transmits the command frame using `nfc.sendCommandCheckAck()` and blocks for up to **3 seconds** waiting for a reader to make contact. Once the reader contacts the tag, the raw response is drained from the PN532's output FIFO directly over the I²C bus using `Wire.requestFrom()`. Finally, it resets the PN532 to a clean active state by calling `nfc.SAMConfig()`.
 
 > **Note:** Emulation quality depends on the reader's tolerance. Most access-control readers and NFC phones work well for 4-byte UIDs. 7-byte UID emulation works on phones and lenient readers; strict readers may reject it.
 
@@ -106,13 +106,13 @@ Uses the **IRremote** library version 4.x.
 
 `IrReceiver.decode()` is called each loop iteration. On success:
 
-- `irproducer` is set to the protocol name (NEC, SONY, RC5, RC6, SAMSUNG, LG, PANASONIC, etc. — `UNKNOWN` if unrecognized).
-- `data` is set to the decoded hex value as a string.
-- `rawData[67]` stores raw timing values in microseconds for lossless retransmit.
+- `irProtocol` is set to the protocol name (NEC, SONY, RC5, RC6, SAMSUNG, LG, PANASONIC, etc. — `UNKNOWN` if unrecognized).
+- `irHexValue` is set to the decoded hex value as a string.
+- `irRawData[67]` stores raw timing values in microseconds for lossless retransmit.
 
 ### Transmitting
 
-`emulateIr()` calls `IrSender.sendRaw(rawData, 67, 38)`. Raw replay ensures compatibility even with proprietary or unrecognized protocols.
+`emulateIr()` calls `IrSender.sendRaw(irRawData, 67, 38)`. Raw replay ensures compatibility even with proprietary or unrecognized protocols.
 
 ### File format
 
@@ -126,20 +126,20 @@ Each IR file contains 3 lines: protocol name, hex value, and space-separated raw
 
 Uses the **RCSwitch** library.
 
-- **Receive pin:** `D3` — `mySwitch.enableReceive(3)`
-- **Transmit pin:** `A6` — `mySwitch.enableTransmit(A6)`
+- **Receive pin:** `D3` — `rfSwitch.enableReceive(3)`
+- **Transmit pin:** `A6` — `rfSwitch.enableTransmit(A6)`
 
 ### Receiving
 
-`mySwitch.available()` is polled each loop. On signal:
+`rfSwitch.available()` is polled each loop. On signal:
 
-- `rfvalue` — the decimal value of the received code
-- `rfbit` — number of bits
-- `rfprotocol` — protocol index (1–12, per RCSwitch docs)
+- `rfReceivedValue` — the decimal value of the received code
+- `rfBitLength` — number of bits
+- `rfReceivedProtocol` — protocol index (1–12, per RCSwitch docs)
 
 ### Transmitting
 
-`emulateRf()` calls `mySwitch.send(rfvalue, rfbit)`. The protocol is not re-sent (RCSwitch defaults to protocol 1 for send); for advanced replay, the protocol would need to be saved and set before `send()`.
+`emulateRf()` calls `rfSwitch.send(rfReceivedValue, rfBitLength)`. The protocol is not re-sent (RCSwitch defaults to protocol 1 for send); for advanced replay, the protocol would need to be saved and set before `send()` using `rfSwitch.setProtocol(rfReceivedProtocol)`.
 
 ---
 
@@ -155,7 +155,7 @@ voltage = ((analogRead(A4) × 3.3) / 1024) × 2 − calibration
 
 `calibration = 2.25` compensates for component tolerances. The voltage is then mapped from the range **2.8 V → 4.2 V** to **0% → 100%**.
 
-The percentage is clamped to `[1, 100]` and displayed:
+The percentage is clamped to `[1, 100]` and displayed via `displayBattery()`:
 - **Home screen:** bottom-right corner, alongside an SD icon
 - **All other screens:** top-right corner as `XX%`
 
@@ -169,11 +169,11 @@ Uses **SdFat** (v2.2.3) at `SD_SCK_MHZ(4)` on pin `A0` (CS).
 
 ### File Browser
 
-`sdDisplay()` shows up to **6 files per page** from a directory. The selected file is highlighted with `>`. Navigation: **UP / DOWN** scrolls, **SELECT** confirms, **LEFT** exits.
+`drawSdFileList()` shows up to **6 files per page** from a directory. The selected file is highlighted with `>`. Navigation: **UP / DOWN** scrolls, **SELECT** confirms, **LEFT** exits.
 
 ### Free Space
 
-`sdFreeSpace()` reads cluster counts from the FAT volume and computes `(freeBytes / totalBytes) × 100`. This is refreshed after every save operation.
+`getSdFreePercent()` reads cluster counts from the FAT volume and computes `(freeBytes / totalBytes) × 100`. This is refreshed after every save operation.
 
 ### Directory Structure
 
