@@ -196,10 +196,89 @@ void scanRfid() {
 }
 
 // Function to emulate RFID transmission
+// Uses PN532 tgInitAsTarget to present as a passive ISO14443A card.
+// Supports:
+//   4-byte UID  → Mifare Classic  (ATQA=0x0004, SAK=0x08)
+//   7-byte UID  → NTAG/Ultralight (ATQA=0x0044, SAK=0x00)
 void emulateRfid() {
+  if (uidLength == 0) {
+    // No tag scanned/loaded yet — tell the user
+    scanbase();
+    display.setCursor(20, 30);
+    display.print("Scan first!");
+    display.display();
+    battery();
+    return;
+  }
+
+  // ---- Build UI ----
+  scanbase();
+  display.setCursor(33, 20);
+  display.println("Emulating...");
+  display.setCursor(10, 30);
+  display.print("UID: ");
+  for (int i = 0; i < uidLength; i++) {
+    if (uid[i] < 0x10) display.print("0");  // zero-pad single hex digit
+    display.print(uid[i], HEX);
+    if (i < uidLength - 1) display.print(" ");
+  }
+  display.display();
+
+  // ---- Build tgInitAsTarget params buffer ----
+  //  Byte 0   : Mode (0x00 = passive-only, accept ISO14443A/Mifare)
+  //  Bytes 1-2: SENS_RES / ATQA (2 bytes)
+  //  Byte 3   : SEL_RES  / SAK  (1 byte)
+  //  Byte 4   : NFCIDLength     (4 or 7)
+  //  Bytes 5..: NFCID1 bytes
+  uint8_t params[13];
+  uint8_t paramLen;
+
+  if (uidLength == 4) {
+    // Mifare Classic 1K — ATQA 0x00 0x04, SAK 0x08
+    params[0] = 0x00;         // mode: passive
+    params[1] = 0x04;         // ATQA[0]
+    params[2] = 0x00;         // ATQA[1]
+    params[3] = 0x08;         // SAK — Mifare Classic 1K
+    params[4] = 0x04;         // NFCIDLength = 4
+    params[5] = uid[0];
+    params[6] = uid[1];
+    params[7] = uid[2];
+    params[8] = uid[3];
+    paramLen  = 9;
+  } else {
+    // 7-byte UID: NTAG / Mifare Ultralight — ATQA 0x00 0x44, SAK 0x00
+    params[0]  = 0x00;        // mode: passive
+    params[1]  = 0x44;        // ATQA[0]
+    params[2]  = 0x00;        // ATQA[1]
+    params[3]  = 0x00;        // SAK — NTAG / Ultralight
+    params[4]  = 0x07;        // NFCIDLength = 7
+    params[5]  = uid[0];
+    params[6]  = uid[1];
+    params[7]  = uid[2];
+    params[8]  = uid[3];
+    params[9]  = uid[4];
+    params[10] = uid[5];
+    params[11] = uid[6];
+    paramLen   = 12;
+  }
+
+  // ---- Present as target (blocking up to 3 s, then return) ----
+  // tgInitAsTarget returns true when an initiator (reader) contacts us.
+  // With timeout=3000 ms we hand control back quickly if no reader is near,
+  // which keeps the button-check loop responsive.
+  nfc.tgInitAsTarget(params, paramLen, 3000);
+
+  battery();
 }
 
-// Function to save RFID data to an SD card
+// Function to save RFID data to an SD card.
+// File format (one value per line):
+//   <cardType>
+//   <uidLength>
+//   <uid[0]>
+//   <uid[1]>
+//   ...
+//   <uid[uidLength-1]>
 void saveRfid() {
   scanbase();                          // Display base information
   if (scanning == 0) {                 // Proceed only if not currently scanning
@@ -217,19 +296,16 @@ void saveRfid() {
         }
 
         // Check if the file already exists on the SD card
-        if (SD.exists(title)) {
-        } else {
+        if (!SD.exists(title)) {
           file = SD.open(title, FILE_WRITE);  // Open the file for writing
 
-          file.println(cardType);
-          file.println(uidLength);  // Write the uidlenght on the file
+          file.println(cardType);    // Line 1: card type string
+          file.println(uidLength);   // Line 2: UID length in bytes
 
-          for (int i = 0; i < uidLength; i++) {  // Loop through UID bytes
-            if (i + 1 != uidLength) {            // If not the last byte
-              file.println(uid[i] + " ");        // Write UID byte
-            } else {
-              file.println(uid[i]);  // Write last UID byte with new line
-            }
+          // Lines 3+: one UID byte per line as decimal integer
+          // NOTE: uid[j] is uint8_t — do NOT use uid[j] + " " (arithmetic!)
+          for (int j = 0; j < uidLength; j++) {
+            file.println(uid[j]);
           }
 
           file.close();  // Close the file after writing

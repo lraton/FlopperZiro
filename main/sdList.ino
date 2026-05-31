@@ -86,11 +86,42 @@ void sdDisplay(File dir, int wichType) {
 void selectedSd(int wichType) {
   switch (wichType) {
     case 1:
-      // Action for type 1 can be added here
+      // Action for type 1 (BadUSB) can be added here
       break;
-    case 2:
-      // Action for type 2 can be added here
+    case 2: {
+      // Load RFID tag data from the selected SD file back into RAM.
+      // Expected file format (one value per line):
+      //   Line 1 : cardType  (e.g. "Mifare Classic")
+      //   Line 2 : uidLength (e.g. 4 or 7)
+      //   Lines 3+: one UID byte per line as decimal integer
+      file = SD.open(String("/rfid/") + String(selectedFile));
+      if (file) {
+        // --- cardType (trim trailing \r if present) ---
+        buffer = file.readStringUntil('\n');
+        buffer.trim();
+        cardType = buffer;
+
+        // --- uidLength ---
+        buffer = file.readStringUntil('\n');
+        buffer.trim();
+        uidLength = (uint8_t)buffer.toInt();
+
+        // Clamp to valid range so we never overflow uid[]
+        if (uidLength > 8) uidLength = 8;
+
+        // --- UID bytes: one per line ---
+        for (uint8_t k = 0; k < uidLength; k++) {
+          buffer = file.readStringUntil('\n');
+          buffer.trim();
+          uid[k] = (uint8_t)buffer.toInt();
+        }
+
+        file.close();
+        scanning    = 0;       // Show the loaded tag on the scan screen
+        sceltaSubMenu = 1;     // Return to the scan/module view
+      }
       break;
+    }
     case 3:
       // Action for type 3: Read IR-related data from the selected file
       file = SD.open(String("/ir/") + String(selectedFile));
