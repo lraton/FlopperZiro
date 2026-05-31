@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, lraton 
+ * Copyright (c) 2024, lraton
  * All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,309 +16,302 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-// The rfid function handles the RFID menu options
+// Routes the RFID sub-menu pages.
 void rfid() {
-  type = 2;  // Set the type to indicate RFID functionality
-  switch (sceltaSubMenu) {
-    case 0:
-      subMenuDisplay();  // Display the submenu options
-      break;
-    case 1:
-      scanRfid();  // Start the RFID scanning process
-      break;
-    case 2:
-      sdMenuDisplay(2);  // Display the SD card menu for RFID options
-      break;
+  currentModuleType = 2;
+  switch (selectedSubMenu) {
+    case 0: drawSubMenu();    break;  // Sub-menu selection screen
+    case 1: scanRfid();       break;  // Active scan / result display
+    case 2: drawSdMenu(2);    break;  // SD file browser for /rfid/
   }
 }
 
-//+=============================================================================
-// Scan for RFID tags and display the received information
-//
+// ─── Scan ─────────────────────────────────────────────────────────────────────
+// Non-blocking passive target detection.
+// Starts a detection round on the first call, then polls for a result on
+// subsequent calls without blocking the display update loop.
 void scanRfid() {
-  if (scanning == 1) {  // Check if scanning is active
-    graficascan();      // Update the display with scanning graphics
+  if (isScanning == 1) {
+    drawScanScreen();
 
-    // Universal key for NDEF and Mifare Classic communication
-    uint8_t keyuniversal[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-    uint8_t success;  // Variable to hold success status of the RFID read operation
+    uint8_t keyUniversal[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
-    //Non-blocking reding
-
-    if (!detectionStarted) {
+    // Kick off detection if not already started.
+    if (!rfidDetectionStarted) {
       nfc.startPassiveTargetIDDetection(PN532_MIFARE_ISO14443A);
-      detectionStarted = true;
+      rfidDetectionStarted = true;
     }
 
-    success = nfc.readDetectedPassiveTargetID(uid, &uidLength);
+    bool tagFound = nfc.readDetectedPassiveTargetID(rfidUid, &rfidUidLen);
 
-    if (success) {  // If a tag is found
-      scanbase();   // Display base information
-      // Display some basic information about the found card
-      Serial.println("Found an ISO14443A card");  // Print card type to Serial Monitor
-      Serial.print("  UID Length: ");             // Print UID length message
-      Serial.print(uidLength, DEC);               // Print UID length in decimal
-      Serial.println(" bytes");                   // Print bytes label
-      Serial.print("  UID Value: ");              // Print UID value message
-      nfc.PrintHex(uid, uidLength);               // Print UID value in hexadecimal format
-      Serial.println("");                         // New line for clarity
+    if (tagFound) {
+      drawScanBase();
 
-      // Display UID value on the screen
-      display.setCursor(20, 25);             // Set cursor position for UID display
-      display.print("UID: ");                // Print UID label
-      for (int i = 0; i < uidLength; i++) {  // Loop through UID bytes
-        if (i + 1 != uidLength) {            // If not the last byte
-          display.print(uid[i], HEX);        // Print UID byte
-          display.print(" ");                // Print UID byte
-        } else {
-          display.println(uid[i], HEX);  // Print last UID byte with new line
+      // ── Serial debug output ────────────────────────────────────────────────
+      Serial.println("Found an ISO14443A card");
+      Serial.print("  UID Length: ");
+      Serial.print(rfidUidLen, DEC);
+      Serial.println(" bytes");
+      Serial.print("  UID Value: ");
+      nfc.PrintHex(rfidUid, rfidUidLen);
+      Serial.println();
+
+      // ── Display UID ────────────────────────────────────────────────────────
+      display.setCursor(20, 25);
+      display.print("UID: ");
+      for (int i = 0; i < rfidUidLen; i++) {
+        display.print(rfidUid[i], HEX);
+        if (i + 1 < rfidUidLen) display.print(" ");
+        else                    display.println();
+      }
+
+      // ── Card-type-specific handling ────────────────────────────────────────
+      switch (rfidUidLen) {
+        case 4: {
+          // Likely a Mifare Classic card
+          Serial.println("Seems to be a Mifare Classic card (4-byte UID)");
+          rfidCardType = "Mifare Classic";
+
+          Serial.println("Trying to authenticate block 4 with default key");
+          bool authOk = nfc.mifareclassic_AuthenticateBlock(
+              rfidUid, rfidUidLen, 4, 0, keyUniversal);
+
+          if (authOk) {
+            Serial.println("Sector 1 (Blocks 4-7) authenticated");
+            uint8_t blockData[16];
+            if (nfc.mifareclassic_ReadDataBlock(4, blockData)) {
+              Serial.println("Block 4 data:");
+              nfc.PrintHexChar(blockData, 16);
+            } else {
+              Serial.println("Unable to read block 4 — try another key?");
+            }
+          } else {
+            Serial.println("Authentication failed — try another key?");
+          }
+          break;
+        }
+
+        case 7: {
+          // Likely Mifare Ultralight or NTAG2xx
+          Serial.println("Seems to be a Mifare Ultralight or NTAG2xx (7-byte UID)");
+          rfidCardType = "Mifare UltraLight";
+
+          uint8_t pageData[32];
+          if (nfc.mifareultralight_ReadPage(4, pageData)) {
+            Serial.println("Mifare Ultralight page 4:");
+            nfc.PrintHexChar(pageData, 4);
+          } else {
+            Serial.println("Ultralight read failed — trying NTAG2xx");
+            rfidCardType = "NTAG2xx";
+
+            for (uint8_t page = 0; page < 42; page++) {
+              Serial.print("PAGE ");
+              if (page < 10) Serial.print("0");
+              Serial.print(page);
+              Serial.print(": ");
+
+              if (nfc.ntag2xx_ReadPage(page, pageData)) {
+                nfc.PrintHexChar(pageData, 4);
+              } else {
+                Serial.println("Unable to read page");
+              }
+            }
+          }
+          break;
         }
       }
 
-      switch (uidLength) {
-        case 4:
-          // We probably have a Mifare Classic card ...
-          Serial.println("Seems to be a Mifare Classic card (4 byte UID)");
-
-          cardType = "Mifare Classic";
-
-          // Now we need to try to authenticate it for read/write access
-          // Try with the factory default keyuniversal: 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF
-          Serial.println("Trying to authenticate block 4 with default keyuniversal value");
-
-          // Start with block 4 (the first block of sector 1) since sector 0
-          // contains the manufacturer data and it's probably better just
-          // to leave it alone unless you know what you're doing
-          success = nfc.mifareclassic_AuthenticateBlock(uid, uidLength, 4, 0, keyuniversal);
-
-          if (success) {
-            Serial.println("Sector 1 (Blocks 4..7) has been authenticated");
-            uint8_t data[16];
-
-            // Try to read the contents of block 4
-            success = nfc.mifareclassic_ReadDataBlock(4, data);
-
-            if (success) {
-              // Data seems to have been read ... spit it out
-              Serial.println("Reading Block 4:");
-              nfc.PrintHexChar(data, 16);
-              Serial.println("");
-
-            } else {
-              Serial.println("Ooops ... unable to read the requested block.  Try another key?");
-            }
-          } else {
-            Serial.println("Ooops ... authentication failed: Try another key?");
-          }
-          break;
-        case 7:
-          // We probably have a Mifare Ultralight card ...
-          Serial.println("Seems to be a Mifare Ultralight or NTAG2xx tag (7 byte UID)");
-
-          Serial.println("Trying Mifare Ultralight tag (7 byte UID)");
-
-          cardType = "Mifare UltraLight";
-
-          // Try to read the first general-purpose user page (#4)
-          Serial.println("Reading page 4");
-          uint8_t data[32];
-          success = nfc.mifareultralight_ReadPage(4, data);
-          if (success) {
-            // Data seems to have been read ... spit it out
-            nfc.PrintHexChar(data, 4);
-            Serial.println("");
-          } else {
-            Serial.println("Ooops ... unable to read the requested page Mifare!?");
-
-            // We probably have an NTAG2xx card (though it could be Ultralight as well)
-            Serial.println("Trying NTAG2xx tag (7 byte UID)");
-
-            cardType = "NTAG2xx";
-
-            for (uint8_t i = 0; i < 42; i++) {
-              success = nfc.ntag2xx_ReadPage(i, data);
-
-              // Display the current page number
-              Serial.print("PAGE ");
-              if (i < 10) {
-                Serial.print("0");
-                Serial.print(i);
-              } else {
-                Serial.print(i);
-              }
-              Serial.print(": ");
-
-              // Display the results, depending on 'success'
-              if (success) {
-                // Dump the page data
-                nfc.PrintHexChar(data, 4);
-              } else {
-                Serial.println("Unable to read the requested page!");
-              }
-            }
-          }
-          break;
-      }
-
+      // ── Display card type ──────────────────────────────────────────────────
+      String cardLabel = rfidCardType + " " + String(rfidUidLen) + " B";
       int16_t x1, y1;
       uint16_t w, h;
-      display.getTextBounds(cardType + " " + String(uidLength) + " B", 0, 0, &x1, &y1, &w, &h);
-      int16_t x = (SCREEN_WIDTH - w) / 2;                        // Calculate x position to center the text
-      display.setCursor(x, 35);                                  // Center the text vertically
-      display.print(cardType + " " + String(uidLength) + " B");  // Display UID length
+      display.getTextBounds(cardLabel, 0, 0, &x1, &y1, &w, &h);
+      display.setCursor((SCREEN_WIDTH - w) / 2, 35);
+      display.print(cardLabel);
 
-      scanning = 0;  // Stop scanning after reading UID
+      isScanning = 0;  // Stop scanning — result is now on screen
     }
+
   } else {
-    scanbase();  // Display base information if not currently scanning
-    // Display UID value on the screen
-    display.setCursor(20, 25);             // Set cursor position for UID display
-    display.print("UID: ");                // Print UID label
-    for (int i = 0; i < uidLength; i++) {  // Loop through UID bytes
-      if (i + 1 != uidLength) {            // If not the last byte
-        display.print(uid[i], HEX);        // Print UID byte
-        display.print(" ");                // Print UID byte
-      } else {
-        display.println(uid[i], HEX);  // Print last UID byte with new line
-      }
+    // ── Result display (not scanning) ─────────────────────────────────────────
+    drawScanBase();
+    display.setCursor(20, 25);
+    display.print("UID: ");
+    for (int i = 0; i < rfidUidLen; i++) {
+      display.print(rfidUid[i], HEX);
+      if (i + 1 < rfidUidLen) display.print(" ");
+      else                    display.println();
     }
 
+    String cardLabel = rfidCardType + " " + String(rfidUidLen) + " B";
     int16_t x1, y1;
     uint16_t w, h;
-    display.getTextBounds(cardType + " " + String(uidLength) + " B", 0, 0, &x1, &y1, &w, &h);
-    int16_t x = (SCREEN_WIDTH - w) / 2;                        // Calculate x position to center the text
-    display.setCursor(x, 35);                                  // Center the text vertically
-    display.print(cardType + " " + String(uidLength) + " B");  // Display UID length
+    display.getTextBounds(cardLabel, 0, 0, &x1, &y1, &w, &h);
+    display.setCursor((SCREEN_WIDTH - w) / 2, 35);
+    display.print(cardLabel);
   }
 
-  battery();             // Display battery status
-  checkModuleButton(2);  // Check the status of the module button
+  displayBattery();
+  handleModuleButtons(2);
 }
 
-// Function to emulate RFID transmission
-// Uses PN532 tgInitAsTarget to present as a passive ISO14443A card.
-// Supports:
-//   4-byte UID  → Mifare Classic  (ATQA=0x0004, SAK=0x08)
-//   7-byte UID  → NTAG/Ultralight (ATQA=0x0044, SAK=0x00)
+// --- Emulate -----------------------------------------------------------------
+// Sends the PN532 TgInitAsTarget command (code 0x8C) via the Adafruit library's
+// low-level sendCommandCheckAck / readResponse API.
+//
+// The Adafruit_PN532 library (v1.3.3) does NOT expose tgInitAsTarget() as a
+// named method, but the raw command pipe is fully public.
+//
+// PN532 TgInitAsTarget command layout (UM10232 section 7.3.9):
+//   cmd[0]    : 0x8C  -- command code
+//   cmd[1]    : Mode  -- 0x00 = passive-only (ISO14443A / Mifare)
+//   cmd[2..20]: MifareParams (19 bytes)
+//                ATQA[0], ATQA[1]  (2 bytes)
+//                SAK               (1 byte)
+//                NFCIDLength       (1 byte, must be 4 or 7)
+//                NFCID1            (NFCIDLength bytes)
+//                zeros             (padding to 19 bytes total)
+//   cmd[21..38]: FeliCaCodes (18 bytes, all 0 for Type-A only)
+//
+// Card emulation parameters:
+//   4-byte UID -- Mifare Classic  (ATQA = 0x04 0x00, SAK = 0x08)
+//   7-byte UID -- NTAG/Ultralight (ATQA = 0x44 0x00, SAK = 0x00)
+//
+// Blocks for up to 3 s waiting for a reader, then returns.
 void emulateRfid() {
-  if (uidLength == 0) {
-    // No tag scanned/loaded yet — tell the user
-    scanbase();
+  if (rfidUidLen == 0) {
+    // No tag has been scanned or loaded yet.
+    drawScanBase();
     display.setCursor(20, 30);
     display.print("Scan first!");
     display.display();
-    battery();
+    displayBattery();
     return;
   }
 
-  // ---- Build UI ----
-  scanbase();
+  // Build the OLED display
+  drawScanBase();
   display.setCursor(33, 20);
   display.println("Emulating...");
   display.setCursor(10, 30);
   display.print("UID: ");
-  for (int i = 0; i < uidLength; i++) {
-    if (uid[i] < 0x10) display.print("0");  // zero-pad single hex digit
-    display.print(uid[i], HEX);
-    if (i < uidLength - 1) display.print(" ");
+  for (int i = 0; i < rfidUidLen; i++) {
+    if (rfidUid[i] < 0x10) display.print("0");  // Zero-pad single hex digit
+    display.print(rfidUid[i], HEX);
+    if (i < rfidUidLen - 1) display.print(" ");
   }
   display.display();
 
-  // ---- Build tgInitAsTarget params buffer ----
-  //  Byte 0   : Mode (0x00 = passive-only, accept ISO14443A/Mifare)
-  //  Bytes 1-2: SENS_RES / ATQA (2 bytes)
-  //  Byte 3   : SEL_RES  / SAK  (1 byte)
-  //  Byte 4   : NFCIDLength     (4 or 7)
-  //  Bytes 5..: NFCID1 bytes
-  uint8_t params[13];
-  uint8_t paramLen;
+  // Build the raw TgInitAsTarget command
+  // Total: 1 (cmd code) + 1 (mode) + 19 (MifareParams) + 18 (FeliCaCodes) = 39 bytes
+  uint8_t cmd[39];
+  memset(cmd, 0x00, sizeof(cmd));
 
-  if (uidLength == 4) {
-    // Mifare Classic 1K — ATQA 0x00 0x04, SAK 0x08
-    params[0] = 0x00;         // mode: passive
-    params[1] = 0x04;         // ATQA[0]
-    params[2] = 0x00;         // ATQA[1]
-    params[3] = 0x08;         // SAK — Mifare Classic 1K
-    params[4] = 0x04;         // NFCIDLength = 4
-    params[5] = uid[0];
-    params[6] = uid[1];
-    params[7] = uid[2];
-    params[8] = uid[3];
-    paramLen  = 9;
+  cmd[0] = 0x8C;  // TgInitAsTarget command code
+  cmd[1] = 0x00;  // Mode: passive-only
+
+  // MifareParams starts at index 2, exactly 19 bytes.
+  // Layout: ATQA(2) + SAK(1) + NFCIDLen(1) + NFCID1(<=10) + zeros(padding)
+  if (rfidUidLen == 4) {
+    cmd[2] = 0x04;          // ATQA[0] -- Mifare Classic
+    cmd[3] = 0x00;          // ATQA[1]
+    cmd[4] = 0x08;          // SAK     -- Mifare Classic 1K
+    cmd[5] = 0x04;          // NFCIDLength = 4
+    cmd[6] = rfidUid[0];
+    cmd[7] = rfidUid[1];
+    cmd[8] = rfidUid[2];
+    cmd[9] = rfidUid[3];
+    // Bytes 10-20: padding (already 0x00)
   } else {
-    // 7-byte UID: NTAG / Mifare Ultralight — ATQA 0x00 0x44, SAK 0x00
-    params[0]  = 0x00;        // mode: passive
-    params[1]  = 0x44;        // ATQA[0]
-    params[2]  = 0x00;        // ATQA[1]
-    params[3]  = 0x00;        // SAK — NTAG / Ultralight
-    params[4]  = 0x07;        // NFCIDLength = 7
-    params[5]  = uid[0];
-    params[6]  = uid[1];
-    params[7]  = uid[2];
-    params[8]  = uid[3];
-    params[9]  = uid[4];
-    params[10] = uid[5];
-    params[11] = uid[6];
-    paramLen   = 12;
+    // 7-byte UID: NTAG / Mifare Ultralight
+    cmd[2]  = 0x44;         // ATQA[0] -- NTAG / Ultralight
+    cmd[3]  = 0x00;         // ATQA[1]
+    cmd[4]  = 0x00;         // SAK     -- NTAG / Ultralight
+    cmd[5]  = 0x07;         // NFCIDLength = 7
+    cmd[6]  = rfidUid[0];
+    cmd[7]  = rfidUid[1];
+    cmd[8]  = rfidUid[2];
+    cmd[9]  = rfidUid[3];
+    cmd[10] = rfidUid[4];
+    cmd[11] = rfidUid[5];
+    cmd[12] = rfidUid[6];
+    // Bytes 13-20: padding (already 0x00)
+  }
+  // Bytes 21-38: FeliCaCodes (18 bytes, all 0x00 -- already zeroed by memset)
+
+  // Send command and wait for a reader to contact us.
+  // sendCommandCheckAck transmits the raw PN532 frame and waits for:
+  //   1. ACK from the PN532   (fast)
+  //   2. Response-ready signal (arrives when a reader initiates communication
+  //      or when the 3 s timeout elapses)
+  if (nfc.sendCommandCheckAck(cmd, sizeof(cmd), 3000)) {
+    // nfc.readResponse() is private in Adafruit_PN532 v1.3.3, so we drain
+    // the PN532's response buffer directly via I2C to keep the bus clean.
+    // PN532_I2C_ADDRESS (0x24) is a public #define in Adafruit_PN532.h.
+    Wire.requestFrom((uint8_t)PN532_I2C_ADDRESS, (uint8_t)20);
+    while (Wire.available()) Wire.read();
   }
 
-  // ---- Present as target (blocking up to 3 s, then return) ----
-  // tgInitAsTarget returns true when an initiator (reader) contacts us.
-  // With timeout=3000 ms we hand control back quickly if no reader is near,
-  // which keeps the button-check loop responsive.
-  nfc.tgInitAsTarget(params, paramLen, 3000);
-
-  battery();
+  displayBattery();
 }
 
-// Function to save RFID data to an SD card.
+
+// ─── Save ─────────────────────────────────────────────────────────────────────
+// Saves the current tag data to the SD card.
+//
 // File format (one value per line):
-//   <cardType>
-//   <uidLength>
-//   <uid[0]>
-//   <uid[1]>
-//   ...
-//   <uid[uidLength-1]>
+//   <rfidCardType>
+//   <rfidUidLen>
+//   <rfidUid[0]>
+//   …
+//   <rfidUid[rfidUidLen-1]>
+//
+// Files are auto-numbered: /rfid/rfid_00.txt … /rfid/rfid_99.txt
 void saveRfid() {
-  scanbase();                          // Display base information
-  if (scanning == 0) {                 // Proceed only if not currently scanning
-    if (sdbegin) {                     // Check if SD card is initialized
-      display.setCursor(33, 30);       // Set cursor position for saving message
-      display.println("Saving...");    // Display saving message
-      for (int i = 0; i < 100; i++) {  // Loop to find an available file slot
+  drawScanBase();
 
-        String title;  // Variable to hold the file name
-        // Generate the file name based on the index
-        if (i < 10 && i >= 0) {
-          title = "/rfid/rfid_0" + String(i) + ".txt";  // Format for single-digit index
-        } else {
-          title = "/rfid/rfid_" + String(i) + ".txt";  // Format for double-digit index
-        }
-
-        // Check if the file already exists on the SD card
-        if (!SD.exists(title)) {
-          file = SD.open(title, FILE_WRITE);  // Open the file for writing
-
-          file.println(cardType);    // Line 1: card type string
-          file.println(uidLength);   // Line 2: UID length in bytes
-
-          // Lines 3+: one UID byte per line as decimal integer
-          // NOTE: uid[j] is uint8_t — do NOT use uid[j] + " " (arithmetic!)
-          for (int j = 0; j < uidLength; j++) {
-            file.println(uid[j]);
-          }
-
-          file.close();  // Close the file after writing
-          break;         // Exit the loop after saving the data
-        }
-      }
-    } else {
-      display.setCursor(33, 30);       // Set cursor position for SD error message
-      display.println("SD Error...");  // Display SD card error message
-    }
-  } else {
-    display.setCursor(30, 30);           // Set cursor position for no data message
-    display.println("Nothing to send");  // Indicate there is no RF data to send
+  if (isScanning != 0) {
+    // Nothing has been scanned yet.
+    display.setCursor(30, 30);
+    display.println("Nothing to save");
+    displayBattery();
+    return;
   }
-  battery();    // Display battery status
+
+  if (!sdReady) {
+    display.setCursor(33, 30);
+    display.println("SD Error...");
+    displayBattery();
+    return;
+  }
+
+  display.setCursor(33, 30);
+  display.println("Saving...");
+
+  for (int i = 0; i < 100; i++) {
+    String path;
+    if (i < 10) {
+      path = "/rfid/rfid_0" + String(i) + ".txt";
+    } else {
+      path = "/rfid/rfid_"  + String(i) + ".txt";
+    }
+
+    if (!SD.exists(path)) {
+      file = SD.open(path, FILE_WRITE);
+      file.println(rfidCardType);  // Line 1: card type
+      file.println(rfidUidLen);    // Line 2: UID length
+
+      // Lines 3+: one UID byte per line as a decimal integer.
+      // IMPORTANT: rfidUid[j] is uint8_t — writing rfidUid[j] + " " would
+      // perform integer arithmetic (adds 32), not string concatenation.
+      for (int j = 0; j < rfidUidLen; j++) {
+        file.println(rfidUid[j]);
+      }
+
+      file.close();
+      break;
+    }
+  }
+
+  displayBattery();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, lraton 
+ * Copyright (c) 2024, lraton
  * All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,166 +29,159 @@
 #include <string.h>
 #include "Keyboard.h"
 
-// IR receiver setup
-#define IR_RECEIVE_PIN 6  // Pin for receiving IR signals
-#define IR_SEND_PIN 9     // Pin for sending IR signals
-int freq_ir = 38;         // IR signal frequency
-String irproducer = "";   // IR signal producer string
-uint16_t rawData[67];     // Array to hold raw IR data
-String data = "";         // String to hold data from IR signal
-int scanning = 1;         // Variable to indicate scanning state
+// ─── IR ──────────────────────────────────────────────────────────────────────
+#define IR_RECEIVE_PIN 6   // Pin for receiving IR signals
+#define IR_SEND_PIN    9   // Pin for sending IR signals
+int     irFrequency = 38;  // IR carrier frequency in kHz
+String  irProtocol  = "";  // Decoded IR protocol name
+String  irHexValue  = "";  // Decoded IR value as hex string
+uint16_t irRawData[67];    // Raw IR timing data (microseconds)
 
-// SD card variables
-#define SPI_SPEED SD_SCK_MHZ(4)  // Speed of SPI communication
-#define SD_PIN A0                // Pin for SD card communication
-SdFat SD;                        // SD card object
-File file;                       // File object for SD card
-bool sdbegin = false;            // Flag to check if SD card is initialized
-float SDpercentFree;
-char fileName[50];           // Filename buffer
-char selectedFile[50];       // Selected file buffer
-int type = 0;                // Variable to hold type
-int sceltaSd = 0;            // Choice for SD card options
-int selectedFileNumber = 1;  // Selected file number
-int fileCount = 0;           // Number of files (function to count files is needed)
-String buffer;               // String buffer for file data
+// ─── Scanning state ──────────────────────────────────────────────────────────
+int  isScanning = 1;  // 1 = actively scanning, 0 = result ready / tag loaded
 
-// Button pin definitions
-#define buttonUp (A4)
-#define buttonDown (A0)
-#define buttonLeft (A3)
-#define buttonSelect (A2)
-#define buttonRight (A1)
+// ─── SD card ─────────────────────────────────────────────────────────────────
+#define SPI_SPEED SD_SCK_MHZ(4)  // SPI clock speed for SD card
+#define SD_CS_PIN A0              // Chip-select pin for SD card
+SdFat  SD;                        // SdFat SD object
+File   file;                      // Active file handle
+bool   sdReady       = false;     // True when SD card initialised successfully
+float  sdFreePercent = 0.0f;      // Percentage of SD space remaining
+char   sdFileName[50];            // Buffer for a file name
+char   sdSelectedFile[50];        // Name of the file the user has chosen
 
-// Initial menu variables
-int currentPage = 0;     // Current page of the main menu
-int scelta = 0;          // Selected option from the main menu
-const int numPages = 5;  // Total number of pages in the main menu
+// ─── Module / menu state ─────────────────────────────────────────────────────
+int    currentModuleType  = 0;  // Active module type (mirrors selectedModule, used by SD browser)
+int    sdFileSelected     = 0;  // 0 = browsing, ≥1 = file index selected
+int    sdSelectedFileNum  = 1;  // 1-based index of the highlighted SD file
+int    sdFileCount        = 0;  // Total number of files in the open directory
+String sdReadBuffer;            // Temporary buffer for SD file reads
 
-// Sub-menu variables
-int currentPageSubMenu = 0;  // Current page in the sub-menu
-int sceltaSubMenu = 0;       // Selected option from the sub-menu
-int numPagesSubMenu = 3;     // Total number of pages in the sub-menu
+// ─── Main menu ───────────────────────────────────────────────────────────────
+int        menuCurrentPage  = 0;  // Currently visible main-menu page
+int        selectedModule   = 0;  // Active module (0=menu,1=badusb,2=rfid,3=ir,4=rf)
+const int  MENU_PAGE_COUNT  = 5;  // Total number of main-menu pages
 
-// "Tamaguino" variables (for some game or device control)
-const int sound = 0;  // Pin for sound output
-#define button1Pin (A3)
-#define button2Pin (A5)
-#define button3Pin (A2)
-int button1State = 0;  // State of button 1
-int button2State = 0;  // State of button 2
-int button3State = 0;  // State of button 3
-#define ACTIVATED LOW  // Define button "activated" state
+// ─── Sub-menu ────────────────────────────────────────────────────────────────
+int        subMenuCurrentPage  = 0;  // Currently visible sub-menu page
+int        selectedSubMenu     = 0;  // Selected sub-menu option (0=submenu,1=scan,2=SD)
+int        SUB_MENU_PAGE_COUNT = 3;  // Total number of sub-menu pages
 
-// Battery variables
-#define analogInPin A4     // Pin for analog input to measure battery
-int sensorValue;           // Value from battery sensor
-float calibration = 2.25;  // Calibration value for battery percentage
-int bat_percentage;        // Battery percentage
+// ─── Tamagotchi / button pins ────────────────────────────────────────────────
+#define SOUND_PIN   0   // PWM pin for buzzer / sound output
+#define BUTTON1_PIN A3
+#define BUTTON2_PIN A5
+#define BUTTON3_PIN A2
+int button1State = 0;
+int button2State = 0;
+int button3State = 0;
+#define BUTTON_ACTIVE LOW  // Logic level when a button is pressed
 
-// RFID card variables for unlocking
-int buf[] = { 115, 232, 15, 186 };  // Array holding card data
-bool tag = true;                    // Tag flag for lock device. FALSE for activate the device lock TRUE for deactivate
+// ─── Navigation buttons ───────────────────────────────────────────────────────
+#define BTN_UP     A4
+#define BTN_DOWN   A0
+#define BTN_LEFT   A3
+#define BTN_SELECT A2
+#define BTN_RIGHT  A1
 
-// RF (Radio Frequency) definitions
-#define rfreceive 3              // Pin to receive RF signals
-#define rftransmit A6            // Pin to transmit RF signals
-RCSwitch mySwitch = RCSwitch();  // RF switch object
-int rfvalue;                     // RF value received
-int rfbit;                       // RF bit value
-int rfprotocol;                  // RF protocol used
+// ─── Battery ─────────────────────────────────────────────────────────────────
+#define BATTERY_ADC_PIN A4         // Analog pin connected to the voltage-divider mid-point
+int   batterySensorValue = 0;      // Raw ADC reading
+float BATTERY_CALIBRATION = 2.25f; // Calibration offset for the voltage-divider circuit
+int   batteryPercent      = 0;     // Computed battery percentage (0-100)
 
-// RFID pin definitions
-#define IRQ 1    // IRQ pin for RFID communication
-#define RESET 0  // Reset pin for RFID communication
+// ─── RFID lock ────────────────────────────────────────────────────────────────
+// Set deviceUnlocked = false to require a specific card to unlock the main menu.
+// authorizedUid[] holds the expected UID bytes (4 bytes).
+int  authorizedUid[] = { 115, 232, 15, 186 };
+bool deviceUnlocked  = true;  // true = unlocked (no card required)
 
-// RFID/NFC variables
-Adafruit_PN532 nfc(IRQ, RESET, &Wire);       // RFID/NFC object
-uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0, 0 };  // UID buffer for RFID tag
-uint8_t uidLength;                           // UID length (either 4 or 7 bytes)
-String cardType = "";
-static bool detectionStarted = false;  // For non-blocking reading
+// ─── RF (433 MHz) ─────────────────────────────────────────────────────────────
+#define RF_RECEIVE_PIN  3   // Digital pin for RF receiver data
+#define RF_TRANSMIT_PIN A6  // Digital pin for RF transmitter data
+RCSwitch rfSwitch = RCSwitch();
+int  rfReceivedValue    = 0;  // Decoded RF signal value
+int  rfBitLength        = 0;  // Number of bits in the decoded signal
+int  rfReceivedProtocol = 0;  // RCSwitch protocol index
 
-// Display setup
-#define SCREEN_WIDTH 128
+// ─── RFID / NFC (PN532 over I²C) ─────────────────────────────────────────────
+#define RFID_IRQ_PIN   1  // PN532 IRQ pin (active-low interrupt)
+#define RFID_RESET_PIN 0  // PN532 RSTPDN pin
+Adafruit_PN532 nfc(RFID_IRQ_PIN, RFID_RESET_PIN, &Wire);
+uint8_t rfidUid[8]  = { 0 };  // Buffer for the tag UID (up to 8 bytes)
+uint8_t rfidUidLen  = 0;      // Actual UID length in bytes (4 or 7)
+String  rfidCardType = "";    // Human-readable card type string
+static bool rfidDetectionStarted = false;  // Non-blocking read state flag
+
+// ─── OLED display (SSD1306, 128×64, I²C 0x3C) ───────────────────────────────
+#define SCREEN_WIDTH  128
 #define SCREEN_HEIGHT 64
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT);  // OLED display object (128x64 resolution)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
+// ─────────────────────────────────────────────────────────────────────────────
 void setup() {
-  Serial.begin(115200);  // Initialize serial communication
-  Wire.begin();          // Initialize I2C communication
+  Serial.begin(115200);
+  Wire.begin();
 
-  // Setup button pins as input with internal pull-up resistors
-  pinMode(buttonUp, INPUT_PULLUP);
-  pinMode(buttonDown, INPUT_PULLUP);
-  pinMode(buttonLeft, INPUT_PULLUP);
-  pinMode(buttonSelect, INPUT_PULLUP);
-  pinMode(buttonRight, INPUT_PULLUP);
+  // Navigation buttons
+  pinMode(BTN_UP,     INPUT_PULLUP);
+  pinMode(BTN_DOWN,   INPUT_PULLUP);
+  pinMode(BTN_LEFT,   INPUT_PULLUP);
+  pinMode(BTN_SELECT, INPUT_PULLUP);
+  pinMode(BTN_RIGHT,  INPUT_PULLUP);
 
-  // Setup "Tamaguino" buttons and sound pin
-  pinMode(button1Pin, INPUT_PULLUP);
-  pinMode(button2Pin, INPUT_PULLUP);
-  pinMode(button3Pin, INPUT_PULLUP);
-  pinMode(sound, OUTPUT);  // Set sound pin as output
+  // Auxiliary buttons and sound
+  pinMode(BUTTON1_PIN, INPUT_PULLUP);
+  pinMode(BUTTON2_PIN, INPUT_PULLUP);
+  pinMode(BUTTON3_PIN, INPUT_PULLUP);
+  pinMode(SOUND_PIN,   OUTPUT);
 
-  // Setup OLED display
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // Initialize display with address 0x3C
-  display.setTextColor(WHITE);                // Set text color to white
-  if (tag) {
-    flopperbooting();  // Display image boot on screen
-  } else {
-    //flopperblocked();  //Display image blocked only if need to authenticate
+  // OLED display
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.setTextColor(WHITE);
+  if (deviceUnlocked) {
+    drawBootScreen();
   }
 
-  // Setup RF communication
-  mySwitch.enableReceive(rfreceive);    // Enable RF reception
-  mySwitch.enableTransmit(rftransmit);  // Enable RF transmission
+  // RF 433 MHz
+  rfSwitch.enableReceive(RF_RECEIVE_PIN);
+  rfSwitch.enableTransmit(RF_TRANSMIT_PIN);
 
-  // Setup IR receiver and sender
-  IrReceiver.begin(IR_RECEIVE_PIN);  // Initialize IR receiver
-  IrSender.begin(IR_SEND_PIN);       // Initialize IR sender
+  // IR
+  IrReceiver.begin(IR_RECEIVE_PIN);
+  IrSender.begin(IR_SEND_PIN);
 
-  // Setup RFID/NFC communication
-  nfc.begin();                                      // Initialize NFC
-  uint32_t versiondata = nfc.getFirmwareVersion();  // Get RFID firmware version
-  if (!versiondata) {                               //Block until rfid detect
-    display.setCursor(52, 33);                      // Display error on screen
-    display.print("Conenct RFID");
+  // RFID / NFC
+  nfc.begin();
+  uint32_t nfcVersion = nfc.getFirmwareVersion();
+  if (!nfcVersion) {
+    display.setCursor(52, 33);
+    display.print("Connect RFID");
     display.display();
-    while (1)
-      ;
+    while (1);
   }
-  nfc.SAMConfig();  // Configure NFC for SAM mode
+  nfc.SAMConfig();
 
-  // Setup SD card
-  if (SD.begin(SD_PIN, SPI_SPEED)) {
-    sdbegin = true;  // SD card successfully initialized
-    SDpercentFree = sdFreeSpace();
+  // SD card
+  if (SD.begin(SD_CS_PIN, SPI_SPEED)) {
+    sdReady      = true;
+    sdFreePercent = getSdFreePercent();
   } else {
-    sdbegin = false;  // SD card initialization failed
+    sdReady = false;
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
 void loop() {
-  switch (scelta) {  // Main loop to handle different modes based on user choice
-    case 0:
-      displayMenu();  // Display the menu
-      break;
-    case 1:
-      badusb();  // Handle bad USB functionality
-      break;
-    case 2:
-      rfid();  // Handle RFID functionality
-      break;
-    case 3:
-      ir();  // Handle IR functionality
-      break;
-    case 4:
-      rf();  // Handle RF functionality
-      break;
+  switch (selectedModule) {
+    case 0: handleMainMenu(); break;  // Show the main menu
+    case 1: badUsb();         break;  // BadUSB / DuckyScript
+    case 2: rfid();           break;  // RFID / NFC
+    case 3: ir();             break;  // Infrared
+    case 4: rf();             break;  // RF 433 MHz
     default:
-      currentPage = 0;  // Reset to the first page of the menu
-      scelta = 0;       // Reset selected option
+      menuCurrentPage  = 0;
+      selectedModule   = 0;
       break;
   }
 }

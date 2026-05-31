@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, lraton 
+ * Copyright (c) 2024, lraton
  * All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,163 +16,164 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-// Function to handle the SD menu display
-// It checks if a file is selected, if not, it calls the checkSdButton() function to handle navigation
-void sdMenuDisplay(int wichType) {
-  if (sceltaSd == 0) {
-    checkSdButton();  // Check for button presses in the SD menu
+// ─── SD menu entry point ──────────────────────────────────────────────────────
+
+// Dispatches between the file browser and the file-action screen depending on
+// whether the user has already selected a file (sdFileSelected > 0).
+void drawSdMenu(int moduleType) {
+  if (sdFileSelected == 0) {
+    handleSdButtons();  // Navigate the file list
   } else {
-    if (sceltaSd >= 1) {
-      selectedSd(wichType);  // If a file is selected, proceed to handle that file
-    }
+    loadSelectedFile(moduleType);  // Act on the chosen file
   }
 }
 
-// Function to display files from the SD card on the screen
-// It calculates the number of pages, and current page based on the file count and selected file
-void sdDisplay(File dir, int wichType) {
-  int i = 1;  // Counter to keep track of files
+// ─── File list renderer ───────────────────────────────────────────────────────
 
-  int pages = fileCount / 6;  // Calculate the number of pages (6 files per page)
-  int add = fileCount % 6;    // Remainder to handle cases where files don't fit perfectly on pages
-  if (add > 0) {
-    pages = pages + 1;  // Add an extra page if there are leftover files
-  }
-  int currentPage = selectedFileNumber / 6;     // Calculate the current page based on the selected file number
-  int addCurrentPage = selectedFileNumber % 6;  // Check if the selected file fits within a complete page
-  if (addCurrentPage > 0) {
-    currentPage = currentPage + 1;  // Adjust current page if there's an incomplete page
-  }
+// Draws up to 6 files per page from the given SD directory.
+// The selected file is highlighted with a ">" prefix.
+void drawSdFileList(File dir, int moduleType) {
+  int fileIndex = 1;
 
-  // Display the current page and total number of pages in the serial monitor (for debugging purposes)
-  Serial.print("Pages:");
-  Serial.println(pages);
-  Serial.print("Current page:");
-  Serial.println(currentPage);
+  int totalPages = sdFileCount / 6 + (sdFileCount % 6 > 0 ? 1 : 0);
+  int currentPage = (sdSelectedFileNum / 6) + (sdSelectedFileNum % 6 > 0 ? 1 : 0);
 
-  // Clear the screen and prepare for new content
+  Serial.print("Pages: ");        Serial.println(totalPages);
+  Serial.print("Current page: "); Serial.println(currentPage);
+
   display.clearDisplay();
-  display.drawBitmap(0, 0, frame, 128, 64, WHITE);  // Draw a frame or border on the screen
-  int positionText = 4;                             // Initial Y position for the text
-  display.setCursor(10, positionText);              // Set cursor for the display
+  display.drawBitmap(0, 0, frame, 128, 64, WHITE);
+  int textY = 4;
+  display.setCursor(10, textY);
 
-  // Loop through files and display them on the screen
   while (true) {
-    file.openNext(&dir, O_RDONLY);  // Open the next file in the directory
-    if (!file || i > currentPage * 6) {
-      break;  // Break the loop if there are no more files or if we've reached the last file on the current page
-    }
-    if (i > currentPage * 6 - 6) {
-      file.getName(fileName, sizeof(fileName));  // Get the file name
-      if (i == selectedFileNumber) {
-        display.print("> ");                // Highlight the selected file with a ">"
-        display.println(String(fileName));  // Display the file name
-        strcpy(selectedFile, fileName);     // Store the selected file name
+    file.openNext(&dir, O_RDONLY);
+    if (!file || fileIndex > currentPage * 6) break;
+
+    if (fileIndex > currentPage * 6 - 6) {
+      file.getName(sdFileName, sizeof(sdFileName));
+
+      if (fileIndex == sdSelectedFileNum) {
+        display.print("> ");
+        display.println(String(sdFileName));
+        strcpy(sdSelectedFile, sdFileName);  // Remember the chosen filename
       } else {
-        display.print("  ");                // Indent for non-selected files
-        display.println(String(fileName));  // Display the file name
+        display.print("  ");
+        display.println(String(sdFileName));
       }
-      file.close();                                             // Close the file after reading its name
-      display.setCursor(10, positionText = positionText + 10);  // Move the cursor down for the next file
+
+      file.close();
+      textY += 10;
+      display.setCursor(10, textY);
     }
-    i++;  // Increment file counter
+    fileIndex++;
   }
 
-  display.display();  // Update the display with the newly rendered content
+  display.display();
 }
 
-// Function to handle selected file from SD card
-// Depending on the "wichType" parameter, different actions are performed based on the file type
-void selectedSd(int wichType) {
-  switch (wichType) {
+// ─── File action dispatcher ───────────────────────────────────────────────────
+
+// Called when the user has confirmed a file selection.
+// Reads the file and loads its contents into the appropriate global variables,
+// then returns to the scan screen (selectedSubMenu = 1, isScanning = 0).
+void loadSelectedFile(int moduleType) {
+  switch (moduleType) {
+
     case 1:
-      // Action for type 1 (BadUSB) can be added here
+      // BadUSB — nothing to load; the filename is already in sdSelectedFile.
       break;
+
     case 2: {
-      // Load RFID tag data from the selected SD file back into RAM.
-      // Expected file format (one value per line):
-      //   Line 1 : cardType  (e.g. "Mifare Classic")
-      //   Line 2 : uidLength (e.g. 4 or 7)
-      //   Lines 3+: one UID byte per line as decimal integer
-      file = SD.open(String("/rfid/") + String(selectedFile));
+      // RFID — parse card type, UID length, and UID bytes.
+      // Expected format (one value per line):
+      //   <rfidCardType>
+      //   <rfidUidLen>
+      //   <rfidUid[0]> … <rfidUid[rfidUidLen-1]>
+      file = SD.open(String("/rfid/") + String(sdSelectedFile));
       if (file) {
-        // --- cardType (trim trailing \r if present) ---
-        buffer = file.readStringUntil('\n');
-        buffer.trim();
-        cardType = buffer;
+        sdReadBuffer = file.readStringUntil('\n');
+        sdReadBuffer.trim();
+        rfidCardType = sdReadBuffer;
 
-        // --- uidLength ---
-        buffer = file.readStringUntil('\n');
-        buffer.trim();
-        uidLength = (uint8_t)buffer.toInt();
+        sdReadBuffer = file.readStringUntil('\n');
+        sdReadBuffer.trim();
+        rfidUidLen = (uint8_t)sdReadBuffer.toInt();
+        if (rfidUidLen > 8) rfidUidLen = 8;  // Guard against buffer overflow
 
-        // Clamp to valid range so we never overflow uid[]
-        if (uidLength > 8) uidLength = 8;
-
-        // --- UID bytes: one per line ---
-        for (uint8_t k = 0; k < uidLength; k++) {
-          buffer = file.readStringUntil('\n');
-          buffer.trim();
-          uid[k] = (uint8_t)buffer.toInt();
+        for (uint8_t k = 0; k < rfidUidLen; k++) {
+          sdReadBuffer = file.readStringUntil('\n');
+          sdReadBuffer.trim();
+          rfidUid[k] = (uint8_t)sdReadBuffer.toInt();
         }
 
         file.close();
-        scanning    = 0;       // Show the loaded tag on the scan screen
-        sceltaSubMenu = 1;     // Return to the scan/module view
+        isScanning      = 0;
+        selectedSubMenu = 1;
       }
       break;
     }
-    case 3:
-      // Action for type 3: Read IR-related data from the selected file
-      file = SD.open(String("/ir/") + String(selectedFile));
+
+    case 3: {
+      // IR — parse protocol, hex value, and raw timing array.
+      file = SD.open(String("/ir/") + String(sdSelectedFile));
       if (file) {
-        buffer = file.readStringUntil('\n');  // Read the first line from the file
-        irproducer = buffer;                  // Store IR producer data
-        buffer = file.readStringUntil('\n');  // Read the second line
-        data = buffer;                        // Store other data
-        buffer = file.readStringUntil('\n');  // Read raw data (as space-separated values)
-        memset(rawData, 0, sizeof rawData);   // Clear the rawData array
-        int n = 0;                            // Index for parsing the buffer
-        for (int k = 0; k < 67; k++) {        // Loop to parse the raw data from the buffer
-          String tempData = "";
-          while (buffer[n] != ' ') {  // Read until the next space character
-            tempData = tempData + buffer[n];
-            rawData[k] = tempData.toInt();  // Convert the string to an integer and store it in rawData
-            n++;
+        sdReadBuffer = file.readStringUntil('\n');
+        irProtocol   = sdReadBuffer;
+
+        sdReadBuffer = file.readStringUntil('\n');
+        irHexValue   = sdReadBuffer;
+
+        // Raw timings: 67 space-separated values on one line.
+        sdReadBuffer = file.readStringUntil('\n');
+        memset(irRawData, 0, sizeof(irRawData));
+        int pos = 0;
+        for (int k = 0; k < 67; k++) {
+          String token = "";
+          while (sdReadBuffer[pos] != ' ' && pos < (int)sdReadBuffer.length()) {
+            token += sdReadBuffer[pos++];
           }
-          n++;  // Move past the space character
+          irRawData[k] = token.toInt();
+          pos++;  // Skip the space separator
         }
-        file.close();       // Close the file after reading
-        scanning = 0;       // Stop scanning
-        sceltaSubMenu = 1;  // Return to the submenu
+
+        file.close();
+        isScanning      = 0;
+        selectedSubMenu = 1;
       }
       break;
-    case 4:
-      // Action for type 4: Read RF-related data from the selected file
-      file = SD.open(String("/rf/") + String(selectedFile));
+    }
+
+    case 4: {
+      // RF — parse value, bit length, and protocol index.
+      file = SD.open(String("/rf/") + String(sdSelectedFile));
       if (file) {
-        buffer = file.readStringUntil('\n');  // Read the first line
-        rfvalue = buffer.toInt();             // Store the RF value
-        buffer = file.readStringUntil('\n');  // Read the second line
-        rfbit = buffer.toInt();               // Store RF bit data
-        buffer = file.readStringUntil('\n');  // Read the third line
-        rfprotocol = buffer.toInt();          // Store RF protocol
-        file.close();                         // Close the file after reading
-        scanning = 0;                         // Stop scanning
-        sceltaSubMenu = 1;                    // Return to the submenu
+        sdReadBuffer       = file.readStringUntil('\n');
+        rfReceivedValue    = sdReadBuffer.toInt();
+
+        sdReadBuffer       = file.readStringUntil('\n');
+        rfBitLength        = sdReadBuffer.toInt();
+
+        sdReadBuffer       = file.readStringUntil('\n');
+        rfReceivedProtocol = sdReadBuffer.toInt();
+
+        file.close();
+        isScanning      = 0;
+        selectedSubMenu = 1;
       }
       break;
+    }
   }
 }
 
-// Function to count the number of files in a directory on the SD card
-int countfile(File dir) {
-  int fileCount = 0;                       // Initialize file count
-  while (file.openNext(&dir, O_RDONLY)) {  // Loop through all files in the directory
-    if (!file.isHidden()) {                // Check if the file is not hidden
-      fileCount++;                         // Increment file count
-    }
-    file.close();  // Close the file after counting
+// ─── File counter ─────────────────────────────────────────────────────────────
+
+// Returns the number of non-hidden files in the given directory.
+int countFiles(File dir) {
+  int count = 0;
+  while (file.openNext(&dir, O_RDONLY)) {
+    if (!file.isHidden()) count++;
+    file.close();
   }
-  return fileCount;  // Return the total file count
+  return count;
 }

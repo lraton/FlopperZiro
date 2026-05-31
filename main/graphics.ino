@@ -507,108 +507,122 @@ const uint8_t battery_bitmap[] PROGMEM = {
   0b01111110
 };
 
-//funnzioni per il menu' principale
-void flopperbooting() {
+// ─── Main menu / home screen drawing functions ───────────────────────────────
+
+// Draws the boot splash screen with "BOOTING" centred on the logo bitmap.
+void drawBootScreen() {
   display.clearDisplay();
   display.drawBitmap(0, 0, flopper, 128, 64, WHITE);
   int16_t x1, y1;
   uint16_t w, h;
   display.getTextBounds("BOOTING", 0, 0, &x1, &y1, &w, &h);
-  int16_t x = (SCREEN_WIDTH - w) / 2;  // Calculate x position to center the text
-  display.setCursor(x, 33);            // Center the text vertically
-  display.print("BOOTING");            // Display Booting
-  battery();
+  int16_t centreX = (SCREEN_WIDTH - w) / 2;
+  display.setCursor(centreX, 33);
+  display.print("BOOTING");
+  displayBattery();
 }
 
-void flopperblocked() {
+// Draws the lock screen shown when deviceUnlocked is false.
+void drawLockedScreen() {
   display.clearDisplay();
   display.drawBitmap(0, 0, flopper, 128, 64, WHITE);
-  display.setCursor(80, 33);  // Center the text vertically
-  display.print("BLOCKED");   // Display Blocked
-  battery();
+  display.setCursor(80, 33);
+  display.print("BLOCKED");
+  displayBattery();
 }
 
-void flopperimage() {
+// Draws the home screen (logo only, no text overlay).
+void drawHomeScreen() {
   display.clearDisplay();
   display.drawBitmap(0, 0, flopper, 128, 64, WHITE);
-  battery();
+  displayBattery();
 }
 
-void menuusb() {
+// Draws the BadUSB module menu page.
+void drawUsbMenuPage() {
   display.clearDisplay();
   display.drawBitmap(0, 0, immagineusb, 128, 64, WHITE);
-  battery();
+  displayBattery();
 }
-void menurfid() {
+
+// Draws the RFID module menu page.
+void drawRfidMenuPage() {
   display.clearDisplay();
   display.drawBitmap(0, 0, immaginerfid, 128, 64, WHITE);
-  battery();
+  displayBattery();
 }
 
-void menuir() {
+// Draws the IR module menu page.
+void drawIrMenuPage() {
   display.clearDisplay();
   display.drawBitmap(0, 0, immagineir, 128, 64, WHITE);
-  battery();
+  displayBattery();
 }
 
-void menurf() {
+// Draws the RF module menu page.
+void drawRfMenuPage() {
   display.clearDisplay();
   display.drawBitmap(0, 0, immaginerf, 128, 64, WHITE);
-  battery();
+  displayBattery();
 }
 
-void drawsd(int x, int y) {
+// Draws the SD card icon bitmap at (x, y).
+void drawSdIcon(int x, int y) {
   display.drawBitmap(x, y, sd_bitmap, 12, 8, WHITE);
 }
-void drawbattery(int x, int y) {
+
+// Draws the battery icon bitmap at (x, y).
+void drawBatteryIcon(int x, int y) {
   display.drawBitmap(x, y, battery_bitmap, 8, 8, WHITE);
 }
 
-//menu' singoli
-void graficausb() {
-  scanbase();
+// ─── Module-specific screen drawing functions ─────────────────────────────────
+
+// Draws the BadUSB active screen (reuses the standard scan base frame).
+void drawUsbScreen() {
+  drawScanBase();
 }
 
-void subMenuDisplay() {
+// Draws the sub-menu selection screen and handles sub-menu button input.
+void drawSubMenu() {
   display.clearDisplay();
   display.drawBitmap(0, 0, frame, 128, 64, WHITE);
-  int positionText = 17;
-  display.setCursor(10, positionText);
-  switch (currentPageSubMenu) {
-    case 0:
-      currentPageSubMenu = 1;
-      display.println("> Scan Signal");
-      display.setCursor(10, positionText = positionText + 10);
-      display.println("Emulate");
-      break;
+  int textY = 17;
+  display.setCursor(10, textY);
+
+  // Default to page 1 if the user lands on the placeholder page 0.
+  if (subMenuCurrentPage == 0) subMenuCurrentPage = 1;
+
+  switch (subMenuCurrentPage) {
     case 1:
       display.println("> Scan Signal");
-      display.setCursor(10, positionText = positionText + 10);
-      display.println("Emulate");
+      display.setCursor(10, textY += 10);
+      display.println("  Emulate from SD");
       break;
     case 2:
-      display.println("Scan Signal");
-      display.setCursor(10, positionText = positionText + 10);
-      display.println("> Emulate");
+      display.println("  Scan Signal");
+      display.setCursor(10, textY += 10);
+      display.println("> Emulate from SD");
       break;
   }
-  battery();
-  checkSubMenuButton();
+
+  displayBattery();
+  handleSubMenuButtons();
 }
-void scanbase() {
+
+// Draws the base scan frame (border + button hints at the bottom).
+void drawScanBase() {
   display.clearDisplay();
   display.drawBitmap(0, 0, scan, 128, 64, WHITE);
-  display.setCursor(55, 5);
-  display.println("scan");
-  display.setCursor(13, 52);
-  display.println("back");
-  display.setCursor(55, 52);
-  display.println("save");
-  display.setCursor(95, 52);
-  display.println("emul.");
+  display.setCursor(55, 5);  display.println("scan");
+  display.setCursor(13, 52); display.println("back");
+  display.setCursor(55, 52); display.println("save");
+  display.setCursor(95, 52); display.println("emul.");
 }
-void graficascan() {
-  scanbase();
+
+// Draws the scan base frame with "Scanning..." in the centre.
+void drawScanScreen() {
+  drawScanBase();
   display.setCursor(33, 30);
   display.println("Scanning...");
 }

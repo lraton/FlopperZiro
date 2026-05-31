@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, lraton 
+ * Copyright (c) 2024, lraton
  * All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,256 +16,187 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-// The function that handles the IR menu
+// Routes the IR sub-menu pages.
 void ir() {
-  type = 3;                 // Set the type to 3 for IR
-  switch (sceltaSubMenu) {  // Check the submenu choice
-    case 0:
-      subMenuDisplay();  // Display the submenu options
-      break;
-    case 1:
-      scanIr();  // Start scanning for IR signals
-      break;
-    case 2:
-      sdMenuDisplay(3);  // Display the SD card menu for saving IR codes
-      break;
+  currentModuleType = 3;
+  switch (selectedSubMenu) {
+    case 0: drawSubMenu();   break;  // Sub-menu selection screen
+    case 1: scanIr();        break;  // Active scan / result display
+    case 2: drawSdMenu(3);   break;  // SD file browser for /ir/
   }
 }
 
-// Function to scan and display IR code information
+// ─── Scan ─────────────────────────────────────────────────────────────────────
+// Waits for a decoded IR signal and displays the protocol and value.
 void scanIr() {
-  if (scanning == 1) {                             // If scanning is active
-    graficascan();                                 // Display scan graphic/UI
-    decode_results results;                        // Create a structure to store the scan results
-    if (IrReceiver.decode()) {                     // Decode the IR signal
-      dumpInfo();                                  // Print information about the signal
-      dumpCode();                                  // Print the raw IR code in source code format
-      Serial.println("");                          // Add a blank line between entries
-      scanbase();                                  // Update the base scan screen
-      display.setCursor(20, 25);                   // Set display cursor for encoding info
-      display.println("Encoding: " + irproducer);  // Show the IR encoding type
-      display.setCursor(20, 35);                   // Set display cursor for data info
-      display.println("Data: 0x" + data);          // Display the decoded data
-      Serial.println(irproducer);                  // Print the encoding type to the Serial Monitor
-      IrReceiver.resume();                         // Prepare to receive the next IR code
-      scanning = 0;                                // Stop scanning
+  if (isScanning == 1) {
+    drawScanScreen();
+
+    if (IrReceiver.decode()) {
+      printIrInfo();
+      printIrCode();
+      Serial.println();
+
+      drawScanBase();
+      display.setCursor(20, 25);
+      display.println("Protocol: " + irProtocol);
+      display.setCursor(20, 35);
+      display.println("Value: 0x" + irHexValue);
+
+      IrReceiver.resume();  // Ready to receive the next signal
+      isScanning = 0;
     }
   } else {
-    // If scanning is inactive, just display the last known encoding and data
-    scanbase();
+    // Display the last captured result.
+    drawScanBase();
     display.setCursor(20, 25);
-    display.println("Encoding: " + irproducer);
+    display.println("Protocol: " + irProtocol);
     display.setCursor(20, 35);
-    display.println("Data: 0x" + data);
+    display.println("Value: 0x" + irHexValue);
   }
-  battery();             // Check and display battery level
-  checkModuleButton(3);  // Check for button inputs in module 3 (IR)
+
+  displayBattery();
+  handleModuleButtons(3);
 }
 
-// Function to print the IR code in a specific format (for Panasonic codes)
-void ircode(decode_results *results) {
-  // For Panasonic protocol, print the address
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+// Prints the protocol name of a Panasonic-style code to the Serial monitor.
+void printIrValue(decode_results *results) {
   if (results->decode_type == PANASONIC) {
     Serial.print(results->address, HEX);
     Serial.print(":");
   }
-
-  // Print the value of the IR code
   Serial.print(results->value, HEX);
 }
 
-// Function to display the encoding type based on the IR protocol
-void encoding() {
+// Resolves the protocol name and stores it in irProtocol.
+void getIrProtocolName() {
   switch (IrReceiver.decodedIRData.protocol) {
     default:
-    case UNKNOWN:
-      irproducer = "UNKNOWN";  // Unknown IR protocol
-      Serial.print("UNKNOWN");
-      break;
-    case NEC:
-      irproducer = "NEC";
-      Serial.print("NEC");
-      break;
-    case SONY:
-      irproducer = "SONY";
-      Serial.print("SONY");
-      break;
-    case RC5:
-      irproducer = "RC5";
-      Serial.print("RC5");
-      break;
-    case RC6:
-      irproducer = "RC6";
-      Serial.print("RC6");
-      break;
-    case SHARP:
-      irproducer = "SHARP";
-      Serial.print("SHARP");
-      break;
-    case JVC:
-      irproducer = "JVC";
-      Serial.print("JVC");
-      break;
-    case BOSEWAVE:
-      irproducer = "BOSEWAVE";
-      Serial.print("BOSEWAVE");
-      break;
-    case SAMSUNG:
-      irproducer = "SAMSUNG";
-      Serial.print("SAMSUNG");
-      break;
-    case LG:
-      irproducer = "LG";
-      Serial.print("LG");
-      break;
-    case WHYNTER:
-      irproducer = "WHYNTER";
-      Serial.print("WHYNTER");
-      break;
-    case KASEIKYO:
-      irproducer = "KASEIKYO";
-      Serial.print("KASEIKYO");
-      break;
-    case PANASONIC:
-      irproducer = "PANASONIC";
-      Serial.print("PANASONIC");
-      break;
-    case DENON:
-      irproducer = "DENON";
-      Serial.print("Denon");
-      break;
+    case UNKNOWN:    irProtocol = "UNKNOWN";   Serial.print("UNKNOWN");   break;
+    case NEC:        irProtocol = "NEC";        Serial.print("NEC");       break;
+    case SONY:       irProtocol = "SONY";       Serial.print("SONY");      break;
+    case RC5:        irProtocol = "RC5";        Serial.print("RC5");       break;
+    case RC6:        irProtocol = "RC6";        Serial.print("RC6");       break;
+    case SHARP:      irProtocol = "SHARP";      Serial.print("SHARP");     break;
+    case JVC:        irProtocol = "JVC";        Serial.print("JVC");       break;
+    case BOSEWAVE:   irProtocol = "BOSEWAVE";   Serial.print("BOSEWAVE");  break;
+    case SAMSUNG:    irProtocol = "SAMSUNG";    Serial.print("SAMSUNG");   break;
+    case LG:         irProtocol = "LG";         Serial.print("LG");        break;
+    case WHYNTER:    irProtocol = "WHYNTER";    Serial.print("WHYNTER");   break;
+    case KASEIKYO:   irProtocol = "KASEIKYO";   Serial.print("KASEIKYO");  break;
+    case PANASONIC:  irProtocol = "PANASONIC";  Serial.print("PANASONIC"); break;
+    case DENON:      irProtocol = "DENON";      Serial.print("Denon");     break;
   }
 }
 
-// Function to display information about the decoded IR signal
-void dumpInfo() {
-  // Check if the buffer overflowed
+// Prints decoded IR signal info (protocol, value, bit count) to the Serial monitor.
+void printIrInfo() {
   if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_WAS_OVERFLOW) {
-    Serial.println("IR code too long. Edit IRremoteInt.h and increase RAWLEN");
+    Serial.println("IR code too long — increase RAWLEN in IRremoteInt.h");
     return;
   }
-
-  // Print the encoding type
-  Serial.print("Encoding  : ");
-  encoding();
-  Serial.println("");
-
-  // Print the code and the bit length of the IR signal
-  Serial.print("Code      : 0x");
+  Serial.print("Protocol : ");
+  getIrProtocolName();
+  Serial.println();
+  Serial.print("Value    : 0x");
   Serial.print(IrReceiver.decodedIRData.decodedRawData, HEX);
   Serial.print(" (");
   Serial.print(IrReceiver.decodedIRData.numberOfBits, DEC);
   Serial.println(" bits)");
 }
 
-// Function to display the raw IR code in array form for use in source code
-void dumpCode() {
-  // Start raw data array declaration
-  Serial.print("unsigned int  ");
-  Serial.print("rawData[");
-  Serial.print(IrReceiver.decodedIRData.rawDataPtr->rawlen - 1, DEC);  // Print the size of the array
-  Serial.print("] = {");                                               // Start array declaration
+// Builds irRawData[] from the decoder buffer, stores irHexValue, and prints
+// the raw timing array to the Serial monitor in source-code format.
+void printIrCode() {
+  Serial.print("uint16_t rawData[");
+  Serial.print(IrReceiver.decodedIRData.rawDataPtr->rawlen - 1, DEC);
+  Serial.print("] = {");
 
-  // Print each value in the raw data buffer
   for (int i = 1; i < IrReceiver.decodedIRData.rawDataPtr->rawlen; i++) {
-    rawData[i - 1] = IrReceiver.decodedIRData.rawDataPtr->rawbuf[i] * USECPERTICK;  // Convert timing to microseconds
-    Serial.print(IrReceiver.decodedIRData.rawDataPtr->rawbuf[i] * USECPERTICK, DEC);
-    if (i < IrReceiver.decodedIRData.rawDataPtr->rawlen - 1) Serial.print(",");  // Add comma between values except for the last one
-    if (!(i & 1)) Serial.print(" ");                                             // Add space for readability every two values
+    irRawData[i - 1] = IrReceiver.decodedIRData.rawDataPtr->rawbuf[i] * USECPERTICK;
+    Serial.print(irRawData[i - 1], DEC);
+    if (i < IrReceiver.decodedIRData.rawDataPtr->rawlen - 1) Serial.print(",");
+    if (!(i & 1)) Serial.print(" ");
   }
 
-  // End array declaration
-  Serial.print("};");
-
-  // Add comment with protocol and value
-  Serial.print("  // ");
-  encoding();
+  Serial.print("};  // ");
+  getIrProtocolName();
   Serial.print(" ");
   Serial.println(IrReceiver.decodedIRData.decodedRawData, HEX);
+  Serial.println();
 
-  // Add newline
-  Serial.println("");
-
-  // Salvataggio del valore decodificato nella variabile data
-  char hexString[17];
-  sprintf(hexString, "%lX", IrReceiver.decodedIRData.decodedRawData);
-  data = String(hexString);
-
-  Serial.println(data);
-
-  // Se il protocollo è Panasonic, salvare anche l'indirizzo
-  if (IrReceiver.decodedIRData.protocol == PANASONIC) {
-    Serial.print("unsigned int addr = 0x");
-    Serial.print(IrReceiver.decodedIRData.address, HEX);
-    Serial.println(";");
-  }
-
-  Serial.print("unsigned int data = 0x");
-  Serial.println(data + ";");
+  // Store the decoded value as a hex string.
+  char hexBuf[17];
+  sprintf(hexBuf, "%lX", IrReceiver.decodedIRData.decodedRawData);
+  irHexValue = String(hexBuf);
+  Serial.println(irHexValue);
 }
 
-
-// Function to emulate/simulate sending an IR signal
+// ─── Emulate ──────────────────────────────────────────────────────────────────
+// Re-transmits the last captured IR signal as raw timing data at 38 kHz.
 void emulateIr() {
-  scanbase();  // Update the UI for sending
+  drawScanBase();
   display.setCursor(33, 30);
-  display.println("Sending...");           // Display "Sending..." on the screen
-  battery();                               // Display battery level
-  IrSender.sendRaw(rawData, 67, freq_ir);  // Send the raw IR code
-  delay(2000);                             // Wait for 2 seconds
+  display.println("Sending...");
+  displayBattery();
+  IrSender.sendRaw(irRawData, 67, irFrequency);
+  delay(2000);
 }
 
-// Function to save an IR code to an SD card
+// ─── Save ─────────────────────────────────────────────────────────────────────
+// Saves the current IR signal to the SD card.
+//
+// File format:
+//   Line 1: protocol name
+//   Line 2: hex value string
+//   Line 3: 67 raw timing values separated by spaces
+//
+// Files are auto-numbered: /ir/ir_00.txt … /ir/ir_99.txt
 void saveIr() {
-  scanbase();           // Update the UI for saving
-  if (scanning == 0) {  // Ensure scanning is not active
-    if (sdbegin) {      // Check if the SD card is ready
-      display.setCursor(33, 30);
-      display.println("Saving...");  // Display "Saving..." on the screen
+  drawScanBase();
 
-      // Loop through 100 files and find an available filename
-      for (int i = 0; i < 100; i++) {
-        String title;
-        // Generate file name based on the current index
-        if (i < 10 && i >= 0) {
-          title = "/ir/ir_0" + String(i);  // Create a filename like ir_01.txt
-          title = title + ".txt";
-        } else {
-          title = "/ir/ir_" + String(i);  // Create a filename like ir_10.txt
-          title = title + ".txt";
-        }
-
-        // Check if the file already exists
-        if (SD.exists(title)) {
-        } else {
-          // Open the file for writing
-          file = SD.open(title, FILE_WRITE);
-          // Write IR producer and data
-          file.println(irproducer);  // Write the encoding type to the file
-          file.println(data);        // Write the data to the file
-
-          // Write the raw data values to the file
-          for (int i = 0; i < 67; i++) {
-            file.print(rawData[i]);  // Print each raw data value
-            if (i != 66) {
-              file.print(" ");  // Add space between values
-            }
-          }
-          file.print(" ");  // Print an additional space
-          file.println();   // Move to the next line
-          file.close();     // Close the file after writing
-          break;            // Exit the loop after saving the file
-        }
-      }
-    } else {
-      // If the SD card is not initialized or has an error
-      display.setCursor(33, 30);
-      display.println("SD Error...");  // Display an error message
-    }
-  } else {
-    // If scanning is still active, indicate that there's nothing to send
+  if (isScanning != 0) {
     display.setCursor(30, 30);
-    display.println("Nothing to send");  // Display the message
+    display.println("Nothing to save");
+    displayBattery();
+    return;
   }
-  battery();    // Display battery level
+
+  if (!sdReady) {
+    display.setCursor(33, 30);
+    display.println("SD Error...");
+    displayBattery();
+    return;
+  }
+
+  display.setCursor(33, 30);
+  display.println("Saving...");
+
+  for (int i = 0; i < 100; i++) {
+    String path;
+    if (i < 10) {
+      path = "/ir/ir_0" + String(i) + ".txt";
+    } else {
+      path = "/ir/ir_"  + String(i) + ".txt";
+    }
+
+    if (!SD.exists(path)) {
+      file = SD.open(path, FILE_WRITE);
+      file.println(irProtocol);
+      file.println(irHexValue);
+
+      for (int j = 0; j < 67; j++) {
+        file.print(irRawData[j]);
+        if (j != 66) file.print(" ");
+      }
+      file.print(" ");
+      file.println();
+      file.close();
+      break;
+    }
+  }
+
+  displayBattery();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, lraton 
+ * Copyright (c) 2024, lraton
  * All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,268 +16,195 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-// Function to handle button inputs when in the main menu
-void checkMenuButton() {
-  // Checks if the "Up" button is pressed (via analogRead)
-  if (analogRead(buttonUp) == 0) {
-    handleUpButton();  // Calls function to handle "Up" action
-  }
-  // Checks if the "Down" button is pressed (via digitalRead)
-  if (digitalRead(buttonDown) == LOW) {
-    handleDownButton();  // Calls function to handle "Down" action
-  }
-  // Checks if the "Left" button is pressed
-  if (digitalRead(buttonLeft) == LOW) {
-    handleLeftButton();  // Calls function to handle "Left" action
-  }
-  // Checks if the "Select" button is pressed
-  if (digitalRead(buttonSelect) == LOW) {
-    handleSelectButton();  // Calls function to handle "Select" action
-  }
-  // Adds a delay to debounce the buttons
+// ─── Main menu button handler ─────────────────────────────────────────────────
+
+void handleMenuButtons() {
+  if (analogRead(BTN_UP) == 0)         onMenuUp();
+  if (digitalRead(BTN_DOWN)   == LOW)  onMenuDown();
+  if (digitalRead(BTN_LEFT)   == LOW)  onMenuLeft();
+  if (digitalRead(BTN_SELECT) == LOW)  onMenuSelect();
+  delay(150);  // Debounce delay
+}
+
+// Scroll to the previous main-menu page (minimum page 1).
+void onMenuUp() {
+  if (menuCurrentPage > 1) menuCurrentPage--;
+}
+
+// Scroll to the next main-menu page (maximum MENU_PAGE_COUNT - 1).
+void onMenuDown() {
+  if (menuCurrentPage < MENU_PAGE_COUNT - 1) menuCurrentPage++;
+}
+
+// Return from any module back to the main menu.
+void onMenuLeft() {
+  selectedSubMenu  = 0;
+  menuCurrentPage  = selectedModule;
+  selectedModule   = 0;
+}
+
+// Enter the module shown on the current main-menu page.
+void onMenuSelect() {
+  selectedModule = menuCurrentPage;
+}
+
+// ─── Sub-menu button handler ──────────────────────────────────────────────────
+
+void handleSubMenuButtons() {
+  if (analogRead(BTN_UP) == 0)         onSubMenuUp();
+  if (digitalRead(BTN_DOWN)   == LOW)  onSubMenuDown();
+  if (digitalRead(BTN_LEFT)   == LOW)  onSubMenuLeft();
+  if (digitalRead(BTN_SELECT) == LOW)  onSubMenuSelect();
   delay(150);
 }
 
-// Function to handle the "Up" button behavior in the main menu
-void handleUpButton() {
-  // Decrease the current page number if it's greater than the first page
-  if (currentPage > 1) {
-    currentPage--;
+// Scroll to the previous sub-menu page (wraps around).
+void onSubMenuUp() {
+  if (subMenuCurrentPage > 0) {
+    subMenuCurrentPage--;
+  }
+  if (subMenuCurrentPage == 0) {
+    subMenuCurrentPage = SUB_MENU_PAGE_COUNT - 1;  // Wrap to last page
   }
 }
 
-// Function to handle the "Down" button behavior in the main menu
-void handleDownButton() {
-  // Increase the current page number if it's less than the last page
-  if (currentPage < numPages - 1) {
-    currentPage++;
-  }
-}
-
-// Function to handle the "Left" button behavior in the main menu
-void handleLeftButton() {
-  // Resets submenu choice and returns to the main menu
-  sceltaSubMenu = 0;
-  currentPage = scelta;
-  scelta = 0;
-}
-
-// Function to handle the "Select" button behavior in the main menu
-void handleSelectButton() {
-  // Stores the current page as the selected option
-  scelta = currentPage;
-}
-
-////////////////// Button handling for the second menu ///////////////////
-
-void checkSubMenuButton() {
-  // Same logic as the main menu buttons but for the submenu
-  if (analogRead(buttonUp) == 0) {
-    handleSubMenuUpButton();  // Calls "Up" action for the submenu
-  }
-  if (digitalRead(buttonDown) == LOW) {
-    handleSubMenuDownButton();  // Calls "Down" action for the submenu
-  }
-  if (digitalRead(buttonLeft) == LOW) {
-    handleSubMenuLeftButton();  // Calls "Left" action for the submenu
-  }
-  if (digitalRead(buttonSelect) == LOW) {
-    handleSubMenuSelectButton();  // Calls "Select" action for the submenu
-  }
-  delay(150);  // Adds delay for button debounce
-}
-
-// Function to handle the "Up" button behavior in the submenu
-void handleSubMenuUpButton() {
-  // Navigate through submenu pages in a circular way
-  if (currentPageSubMenu > 0) {
-    currentPageSubMenu--;  // Decrease page
-  }
-  if (currentPageSubMenu == 0) {
-    currentPageSubMenu = numPagesSubMenu - 1;  // Wrap around to the last page
-  }
-}
-
-// Function to handle the "Down" button behavior in the submenu
-void handleSubMenuDownButton() {
-  // Navigate through submenu pages in a circular way
-  if (currentPageSubMenu < numPagesSubMenu - 1) {
-    currentPageSubMenu++;  // Increase page
+// Scroll to the next sub-menu page (wraps around).
+void onSubMenuDown() {
+  if (subMenuCurrentPage < SUB_MENU_PAGE_COUNT - 1) {
+    subMenuCurrentPage++;
   } else {
-    currentPageSubMenu = 0;  // Wrap around to the first page
+    subMenuCurrentPage = 0;  // Wrap to first page
   }
 }
 
-// Function to handle the "Left" button behavior in the submenu
-void handleSubMenuLeftButton() {
-  // Reset submenu and return to main menu
-  sceltaSubMenu = 0;
-  currentPage = scelta;
-  scelta = 0;
+// Return from the sub-menu back to the main menu.
+void onSubMenuLeft() {
+  selectedSubMenu  = 0;
+  menuCurrentPage  = selectedModule;
+  selectedModule   = 0;
 }
 
-// Function to handle the "Select" button behavior in the submenu
-void handleSubMenuSelectButton() {
-  // Store the current submenu page as the selection
-  sceltaSubMenu = currentPageSubMenu;
+// Confirm the highlighted sub-menu option.
+// If option 2 (SD browser) is selected, open the matching directory and render the file list.
+void onSubMenuSelect() {
+  selectedSubMenu = subMenuCurrentPage;
 
-  // If the selected submenu option is 2, open a directory based on the type
-  if (sceltaSubMenu == 2) {
-    File dir;  // Declare a file object
-    switch (type) {
-      case 1:
-        dir = SD.open("/badusb/");  // Open the "badusb" directory if type is 1
-        break;
-      case 2:
-        dir = SD.open("/rfid/");  // Open the "rfid" directory if type is 2
-        break;
-      case 3:
-        dir = SD.open("/ir/");  // Open the "ir" directory if type is 3
-        break;
-      case 4:
-        dir = SD.open("/rf/");  // Open the "rf" directory if type is 4
-        break;
-    }
-    // Count files in the opened directory and display them
-    fileCount = countfile(dir);
-    sdDisplay(dir, type);
-  }
-}
-
-//////////////////// Button handling for the scan module menu //////////////////////////////
-
-void checkModuleButton(int wichMenu) {
-  // Start scanning if the "Up" button is pressed
-  if (analogRead(buttonUp) == 0) {
-    scanning = 1;
-    detectionStarted = false;  //for reset rfid
-  }
-  // Execute different save functions depending on the active module (whichMenu)
-  if (digitalRead(buttonDown) == LOW) {
-    switch (wichMenu) {
-      case 1:
-        break;  // No action for menu 1
-      case 2:
-        saveRfid();  // Save RFID data for menu 2
-        break;
-      case 3:
-        saveIr();  // Save IR data for menu 3
-        break;
-      case 4:
-        saveRf();  // Save RF data for menu 4
-        break;
-    }
-    SDpercentFree = sdFreeSpace();
-  }
-  // Handle "Left" button behavior to reset scanning and submenu for each module
-  if (digitalRead(buttonLeft) == LOW) {
-    sceltaSd = 0;
-    selectedFileNumber = 1;
-    scanning = 1;
-    sceltaSubMenu = 0;
-    detectionStarted = false;  //for reset rfid
-  }
-  // Execute emulation functions depending on the module
-  if (digitalRead(buttonRight) == LOW) {
-    switch (wichMenu) {
-      case 1:
-        emulateUsb();  // Emulate USB for menu 1
-        break;
-      case 2:
-        emulateRfid();  // Emulate RFID for menu 2
-        break;
-      case 3:
-        emulateIr();  // Emulate IR for menu 3
-        break;
-      case 4:
-        emulateRf();  // Emulate RF for menu 4
-        break;
-    }
-  }
-  if (digitalRead(buttonSelect) == LOW) {
-    // No action currently set for "Select" in this menu
-  }
-  delay(150);  // Delay to debounce buttons
-}
-
-/////////////////// Button handling for the SD card menu ///////////////////////
-
-void checkSdButton() {
-  // Navigate up through files on the SD card when "Up" button is pressed
-  if (analogRead(buttonUp) == 0) {
-    File dir;  // Declare a file object
-    switch (type) {
-      case 1:
-        dir = SD.open("/badusb/");  // Open the "badusb" directory if type is 1
-        break;
-      case 2:
-        dir = SD.open("/rfid/");  // Open the "rfid" directory if type is 2
-        break;
-      case 3:
-        dir = SD.open("/ir/");  // Open the "ir" directory if type is 3
-        break;
-      case 4:
-        dir = SD.open("/rf/");  // Open the "rf" directory if type is 4
-        break;
-    }
-    // Decrease file selection number or wrap around to the last file
-    if (selectedFileNumber > 1) {
-      selectedFileNumber--;
-      fileCount = countfile(dir);
-      sdDisplay(dir, type);
-    } else {
-      selectedFileNumber = fileCount;
-      sdDisplay(dir, type);
-    }
-  }
-  // Navigate down through files on the SD card when "Down" button is pressed
-  if (digitalRead(buttonDown) == LOW) {
+  if (selectedSubMenu == 2) {
     File dir;
-    switch (type) {
-      case 1:
-        dir = SD.open("/badusb/");
-        break;
-      case 2:
-        dir = SD.open("/rfid/");
-        break;
-      case 3:
-        dir = SD.open("/ir/");
-        break;
-      case 4:
-        dir = SD.open("/rf/");
-        break;
+    switch (currentModuleType) {
+      case 1: dir = SD.open("/badusb/"); break;
+      case 2: dir = SD.open("/rfid/");   break;
+      case 3: dir = SD.open("/ir/");     break;
+      case 4: dir = SD.open("/rf/");     break;
     }
-    // Increase file selection number or wrap around to the first file
-    if (selectedFileNumber < fileCount) {
-      selectedFileNumber++;
-      fileCount = countfile(dir);
-      sdDisplay(dir, type);
+    sdFileCount = countFiles(dir);
+    drawSdFileList(dir, currentModuleType);
+  }
+}
+
+// ─── Module (scan / emulate / save) button handler ───────────────────────────
+
+void handleModuleButtons(int moduleType) {
+  // UP — start a new scan (resets any previous result)
+  if (analogRead(BTN_UP) == 0) {
+    isScanning           = 1;
+    rfidDetectionStarted = false;  // Reset the non-blocking RFID state
+  }
+
+  // DOWN — save the current signal to SD
+  if (digitalRead(BTN_DOWN) == LOW) {
+    switch (moduleType) {
+      case 1: /* BadUSB has no save step */   break;
+      case 2: saveRfid();  break;
+      case 3: saveIr();    break;
+      case 4: saveRf();    break;
+    }
+    sdFreePercent = getSdFreePercent();  // Refresh the SD free-space indicator
+  }
+
+  // LEFT — exit back to the sub-menu
+  if (digitalRead(BTN_LEFT) == LOW) {
+    sdFileSelected       = 0;
+    sdSelectedFileNum    = 1;
+    isScanning           = 1;
+    selectedSubMenu      = 0;
+    rfidDetectionStarted = false;
+  }
+
+  // RIGHT — emulate / replay the current signal
+  if (digitalRead(BTN_RIGHT) == LOW) {
+    switch (moduleType) {
+      case 1: executeBadUsb();  break;
+      case 2: emulateRfid();    break;
+      case 3: emulateIr();      break;
+      case 4: emulateRf();      break;
+    }
+  }
+
+  // SELECT — reserved for future use
+  if (digitalRead(BTN_SELECT) == LOW) { }
+
+  delay(150);  // Debounce delay
+}
+
+// ─── SD file browser button handler ──────────────────────────────────────────
+
+void handleSdButtons() {
+  // UP — move selection one file up (wraps around)
+  if (analogRead(BTN_UP) == 0) {
+    File dir;
+    switch (currentModuleType) {
+      case 1: dir = SD.open("/badusb/"); break;
+      case 2: dir = SD.open("/rfid/");   break;
+      case 3: dir = SD.open("/ir/");     break;
+      case 4: dir = SD.open("/rf/");     break;
+    }
+    if (sdSelectedFileNum > 1) {
+      sdSelectedFileNum--;
+      sdFileCount = countFiles(dir);
+      drawSdFileList(dir, currentModuleType);
     } else {
-      selectedFileNumber = 1;
-      sdDisplay(dir, type);
+      sdSelectedFileNum = sdFileCount;
+      drawSdFileList(dir, currentModuleType);
     }
   }
 
-  // Right button doesn't seem to have a function defined in this section
-  if (digitalRead(buttonRight) == LOW) {
-    // Add any desired function here
-  }
-
-  // When "Select" is pressed, set the selected file as the chosen one
-  if (digitalRead(buttonSelect) == LOW) {
-    sceltaSd = selectedFileNumber;
-    if (type == 1) {
-      sceltaSubMenu = 1;  // Specific action for type 1 in SD menu
+  // DOWN — move selection one file down (wraps around)
+  if (digitalRead(BTN_DOWN) == LOW) {
+    File dir;
+    switch (currentModuleType) {
+      case 1: dir = SD.open("/badusb/"); break;
+      case 2: dir = SD.open("/rfid/");   break;
+      case 3: dir = SD.open("/ir/");     break;
+      case 4: dir = SD.open("/rf/");     break;
+    }
+    if (sdSelectedFileNum < sdFileCount) {
+      sdSelectedFileNum++;
+      sdFileCount = countFiles(dir);
+      drawSdFileList(dir, currentModuleType);
+    } else {
+      sdSelectedFileNum = 1;
+      drawSdFileList(dir, currentModuleType);
     }
   }
 
-  // When "Left" button is pressed, reset the file selection and exit the SD menu
-  if (digitalRead(buttonLeft) == LOW) {
-    sceltaSubMenu = 0;
-    selectedFileNumber = 1;
-    sceltaSd = 0;
+  // RIGHT — reserved for future use
+  if (digitalRead(BTN_RIGHT) == LOW) { }
+
+  // SELECT — confirm the highlighted file
+  if (digitalRead(BTN_SELECT) == LOW) {
+    sdFileSelected = sdSelectedFileNum;
+    if (currentModuleType == 1) {
+      selectedSubMenu = 1;  // BadUSB jumps straight to the execute screen
+    }
   }
 
-  // Delay for button debouncing
+  // LEFT — cancel and exit the SD browser
+  if (digitalRead(BTN_LEFT) == LOW) {
+    selectedSubMenu   = 0;
+    sdSelectedFileNum = 1;
+    sdFileSelected    = 0;
+  }
+
   delay(150);
 }
