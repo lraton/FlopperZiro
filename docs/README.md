@@ -1,19 +1,32 @@
 # FlopperZiro
-An open-source, simplified version of Flipper Zero designed for DIY enthusiasts. FlopperZiro is built around the STM32-L432KC microcontroller and includes features like RFID/NFC, RF transmission, IR, and more.
-<br>
-> ⚠️ **Important Notice**: Is a work in progress project, so the hardware can change over the updates and the pcb too
-<br>
 
+> ⚠️ **This is a fun, open-source DIY project** — not a professional device. It is a work in progress and the hardware, PCB, and software may change across updates.
 
-## Features
-- **STM32-L432KC** Microcontroller
-- **RFID/NFC** capabilities (Not finished)
-- **RF 433MHz** Transmitter/Receiver
-- **IR** Transmitter/Receiver
-- **OLED Display**
-- **RubberDucky** support
-- **SD** Card storage (currently under development)
+FlopperZiro is a cheap, DIY, fully open-source multi-tool inspired by the Flipper Zero. It is built around the **STM32-L432KC** microcontroller and programmed via **Arduino IDE**. It packs RF, IR, RFID/NFC, BadUSB, and SD card support into a single hand-held device you can build yourself.
 
-Explore this project to build your own multi-functional device at a lower cost!
+---
 
-For full documentation, use the sidebar to navigate.
+## Features at a glance
+
+| Feature | Status |
+|---|---|
+| 🦆 BadUSB / RubberDucky | ✅ Working |
+| 📡 RF 433 MHz — scan, save, replay | ✅ Working |
+| 🔴 IR — scan, save, replay | ✅ Working |
+| 🔖 RFID/NFC — read, save, emulate | ✅ Working |
+| 💾 SD card — save & load all signals | ✅ Working |
+| 🔋 Battery percentage indicator | ✅ Working |
+| 📊 SD free-space indicator | ✅ Working |
+| 🖥️ OLED 128×64 display | ✅ Working |
+
+---
+
+## Navigation
+
+Use the sidebar to explore the documentation:
+
+- **[Setup](setup.md)** — Hardware assembly, libraries, and flashing
+- **[Usage](usage.md)** — Button map and how to use each module
+- **[Modules](modules.md)** — Deep-dive into every feature
+- **[SD Card File Format](sd-format.md)** — How files are stored on the SD card
+- **[Development](development.md)** — Code architecture, contributing, and roadmap
