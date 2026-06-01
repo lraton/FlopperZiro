@@ -1,81 +1,69 @@
-# Flopper Ziro
-<p align="center">
-<img alt="Github top language" src="https://img.shields.io/github/languages/top/lraton/FlopperZiro?color=56BEB8">
-<img alt="Github language count" src="https://img.shields.io/github/languages/count/lraton/FlopperZiro?color=56BEB8">
-<img alt="Repository size" src="https://img.shields.io/github/repo-size/lraton/FlopperZiro?color=56BEB8">
-<img alt="License" src="https://img.shields.io/github/license/lraton/FlopperZiro?color=56BEB8">
-<img alt="Github issues" src="https://img.shields.io/github/issues/lraton/FlopperZiro?color=56BEB8">
-<img alt="Github forks" src="https://img.shields.io/github/forks/lraton/FlopperZiro?color=56BEB8">
-<img alt="Github stars" src="https://img.shields.io/github/stars/lraton/FlopperZiro?color=56BEB8">
+# FlopperZiro
 
-An orribol copi of FlipperZero, uit worst inglish<br>
-A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino IDE<br>
-<br>
-> ⚠️ **Important Notice**: This is just a fun project, it was started to pass the time, it is not at all professional and is not intended to be. Is not an alternative for profesisoanl device.
-<br>
+<p align="center">
+  <img alt="Github top language" src="https://img.shields.io/github/languages/top/lraton/FlopperZiro?color=56BEB8">
+  <img alt="Github language count" src="https://img.shields.io/github/languages/count/lraton/FlopperZiro?color=56BEB8">
+  <img alt="Repository size" src="https://img.shields.io/github/repo-size/lraton/FlopperZiro?color=56BEB8">
+  <img alt="License" src="https://img.shields.io/github/license/lraton/FlopperZiro?color=56BEB8">
+  <img alt="Github issues" src="https://img.shields.io/github/issues/lraton/FlopperZiro?color=56BEB8">
+  <img alt="Github forks" src="https://img.shields.io/github/forks/lraton/FlopperZiro?color=56BEB8">
+  <img alt="Github stars" src="https://img.shields.io/github/stars/lraton/FlopperZiro?color=56BEB8">
+</p>
+
+FlopperZiro is an open-source, DIY, and cost-effective multi-tool inspired by the Flipper Zero. Built upon the Arduino ecosystem, it is designed for electronics enthusiasts, researchers, and hobbyists to explore hardware protocols and wireless communication.
+
+> **Important Notice:** This is an educational and experimental project developed as a hobby. It is not intended to serve as a replacement for professional diagnostic hardware.
 
 ![side pic](/img/img-profile.jpg)
 
 ## Star History
 [![Star History Chart](https://api.star-history.com/svg?repos=lraton/FlopperZiro&type=Date)](https://star-history.com/#lraton/FlopperZiro&Date)
 
-## Component:
-- STM32-L432KC (Microcontroller) 
-- FS1000a (Radio freq Transmitter) 
-- RXB12 (Radio freq Receiver) 
-- PN532 (RFID/NFC)
-    - PN7150 (need to test)
-- IR LED & Reciver
-- 2N222A PBFREE
-- SSD1306(Display 128x64 OLED) 
-- TF CardMemory Shield 
-- TP4056 (Battery charger) 
-- DC-DC 5V BOOST (voltage booster) 
-- 6x 6x6x8mm push button 
-- Micro usb smd 
-- Battery 3.7 lipo
-
+## Hardware Components
+- **Microcontroller:** STM32-L432KC
+- **RF Transmitter (433 MHz):** FS1000A
+- **RF Receiver (433 MHz):** RXB12
+- **NFC / RFID Controller:** PN532 (PN7150 under evaluation)
+- **Infrared:** IR LED & Receiver
+- **Display:** SSD1306 OLED (128x64)
+- **Storage:** TF MicroSD Card Shield
+- **Power Management:** TP4056 Battery Charger & DC-DC 5V Boost Converter
+- **Power Source:** 3.7V LiPo Battery
+- **Miscellaneous:** 2N2222A Transistor, 6x Tactile Push Buttons (6x6x8mm), SMD Micro USB port
 
 ## Features
+- **BadUSB:** Rubber Ducky script execution
+- **RFID / NFC:** Passive scanning and target emulation
+- **Infrared (IR):** Signal capture, replay, and SD persistence
+- **Sub-1 GHz (RF):** 433 MHz signal capture, replay, and SD persistence
+- **Storage:** Dynamic save and load functionality via MicroSD
+- **System Monitoring:** Battery percentage and SD storage capacity tracking
+- **Development:** Fully programmable via the Arduino IDE
+- **Enclosure:** 3D printed housing available [here](https://www.printables.com/model/1142768-flopper-ziro-shell)
 
-- RubberDucky
-- RFID/NFC (Work in progress)
-- IR 
-    - Read ir signal and emulate it or save it
-- RF
-    - Read rf signal and emulate it or save it
-- Save/Load from SD
-- Battery percentage
-- Sd memory left percentage
-- All programmable via Arduino Ide
+## Project Roadmap
 
-- Add 3d printed shell (https://www.printables.com/model/1142768-flopper-ziro-shell), not finished yet
-
-## To Do
 ### Software
-- [X]    Resovle SD problem with SSD1306
-    - [X]    Do the sd menu'
-    - [X]    save/load from sd
-    - [X]    Make sd listing
-        - [X]    Fix bugs on the sd listing 
-- [X]    Finish the rf scanner and sender
-- [X]   Menu'
-- [X]   BadUsb
-- [X]   Ir
-    - [X] Fix bug when show ir data
-- [ ]   Rfid
-    - [X]    Read UID
-    - [ ]    Read ISO14443B
-    - [ ]    Emualting
-    - [ ]    Finish save rfid
+- [X] Resolve SD/SSD1306 SPI/I2C conflicts
+- [X] Implement SD card directory browser interface
+- [X] Integrate save/load states from SD
+- [X] Complete RF scanner and transmitter logic
+- [X] Develop core menu navigation system
+- [X] BadUSB integration
+- [X] IR signal processing and data formatting
+- [ ] RFID / NFC Subsystem
+  - [X] Read standard UIDs
+  - [ ] Implement ISO14443-B support
+  - [X] Emulation and APDU handling
+  - [X] Implement SD save states for RFID tags
 
 ### Hardware
-- [X]   First pcb
-- [ ]   New version of pcb
-- [ ]   Try PN7150 intead of PN532
+- [X] Initial PCB design and fabrication
+- [X] Secondary PCB revision
+- [ ] PN7150 module integration testing
 
-### Extra
-- [ ]   Documentation
+### Documentation
+- [ ] Comprehensive code and hardware documentation
 
 ![front pic](/img/img-front.jpg)
 ![back pic](/img/img-behind.jpg)
