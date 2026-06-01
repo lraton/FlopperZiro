@@ -107,6 +107,12 @@ void onSubMenuSelect() {
 void handleModuleButtons(int moduleType) {
   // UP — start a new scan (resets any previous result)
   if (analogRead(BTN_UP) == 0) {
+    if (moduleType == 2) {
+      rfidUidLen = 0;
+      memset(rfidUid, 0, sizeof(rfidUid));
+      memset(ntagData, 0, sizeof(ntagData));
+      rfidCardType = "";
+    }
     isScanning           = 1;
     rfidDetectionStarted = false;  // Reset the non-blocking RFID state
   }

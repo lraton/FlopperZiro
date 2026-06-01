@@ -110,6 +110,7 @@ int  rfReceivedProtocol = 0;  // RCSwitch protocol index
 Adafruit_PN532 nfc(RFID_IRQ_PIN, RFID_RESET_PIN, &Wire);
 uint8_t rfidUid[8]  = { 0 };  // Buffer for the tag UID (up to 8 bytes)
 uint8_t rfidUidLen  = 0;      // Actual UID length in bytes (4 or 7)
+uint8_t ntagData[256] = { 0 }; // Buffer for NTAG/Ultralight memory data (64 pages * 4 bytes)
 String  rfidCardType = "";    // Human-readable card type string
 static bool rfidDetectionStarted = false;  // Non-blocking read state flag
 
@@ -120,6 +121,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 // ─────────────────────────────────────────────────────────────────────────────
 void setup() {
+
   Serial.begin(115200);
   Wire.begin();
 

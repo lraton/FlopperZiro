@@ -107,6 +107,16 @@ void loadSelectedFile(int moduleType) {
           rfidUid[k] = (uint8_t)sdReadBuffer.toInt();
         }
 
+        memset(ntagData, 0x00, sizeof(ntagData));
+        if (rfidUidLen == 7) {
+          for (int k = 0; k < 256; k++) {
+            if (!file.available()) break;
+            sdReadBuffer = file.readStringUntil('\n');
+            sdReadBuffer.trim();
+            ntagData[k] = (uint8_t)sdReadBuffer.toInt();
+          }
+        }
+
         file.close();
         isScanning      = 0;
         selectedSubMenu = 1;
