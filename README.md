@@ -12,6 +12,9 @@
 
 FlopperZiro is an open-source, DIY, and cost-effective multi-tool inspired by the Flipper Zero. Built upon the Arduino ecosystem, it is designed for electronics enthusiasts, researchers, and hobbyists to explore hardware protocols and wireless communication.
 
+An orribol copi of FlipperZero, uit worst inglish<br>
+A Flipper Zero clone, but cheapest, DIY and siply Open Source, made with Arduino IDE<br>
+
 > **Important Notice:** This is an educational and experimental project developed as a hobby. It is not intended to serve as a replacement for professional diagnostic hardware.
 
 ![side pic](/img/img-profile.jpg)
@@ -64,6 +67,11 @@ FlopperZiro is an open-source, DIY, and cost-effective multi-tool inspired by th
 
 ### Documentation
 - [ ] Comprehensive code and hardware documentation
+
+## Troubleshooting
+**Blank Screen After Upload:**
+Occasionally, immediately after uploading new code via the Arduino IDE, the screen may remain completely black. This is a known hardware timing quirk where the IDE's automatic reset doesn't properly reboot the display. 
+**Fix:** Simply open the **Serial Monitor / Debugger** in your Arduino IDE. This triggers a clean software reset over USB, and the device will boot up normally.
 
 ![front pic](/img/img-front.jpg)
 ![back pic](/img/img-behind.jpg)
