@@ -28,7 +28,7 @@
 
 | Signal | STM32 Pin |
 |---|---|
-| IR Receiver | `D6` (A6 in code) |
+| IR Receiver | `D6` (`6` in code) |
 | IR Sender | `D9` |
 | RF Receiver | `D3` |
 | RF Transmitter | `A6` |

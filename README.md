@@ -1,6 +1,10 @@
 # FlopperZiro
 
 <p align="center">
+  <img src="img/logo.jpg" alt="FlopperZiro Logo" width="150" height="150">
+</p>
+
+<p align="center">
   <img alt="Github top language" src="https://img.shields.io/github/languages/top/lraton/FlopperZiro?color=56BEB8">
   <img alt="Github language count" src="https://img.shields.io/github/languages/count/lraton/FlopperZiro?color=56BEB8">
   <img alt="Repository size" src="https://img.shields.io/github/repo-size/lraton/FlopperZiro?color=56BEB8">
