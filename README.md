@@ -1,6 +1,10 @@
 # FlopperZiro
 
 <p align="center">
+  <img src="img/logo.png" alt="FlopperZiro Logo" width="150" height="150">
+</p>
+
+<p align="center">
   <img alt="Github top language" src="https://img.shields.io/github/languages/top/lraton/FlopperZiro?color=56BEB8">
   <img alt="Github language count" src="https://img.shields.io/github/languages/count/lraton/FlopperZiro?color=56BEB8">
   <img alt="Repository size" src="https://img.shields.io/github/repo-size/lraton/FlopperZiro?color=56BEB8">
@@ -11,9 +15,8 @@
 </p>
 
 <p align="center">
-  <img src="img/logo.png" alt="FlopperZiro Logo" width="150" height="150">
+<a href="https://trendshift.io/repositories/14256?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-14256" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/14256" alt="lraton%2FFlopperZiro | Trendshift" width="250" height="55"/></a>
 </p>
-
 
 FlopperZiro is an open-source, DIY, and cost-effective multi-tool inspired by the Flipper Zero. Built upon the Arduino ecosystem, it is designed for electronics enthusiasts, researchers, and hobbyists to explore hardware protocols and wireless communication.
 
